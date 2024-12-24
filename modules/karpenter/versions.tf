@@ -4,11 +4,11 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.34.0"
+      version = "~> 2.30"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.16.1"
+      version = "~> 2.14"
     }
   }
 }
