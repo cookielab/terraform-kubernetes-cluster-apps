@@ -1,0 +1,133 @@
+discovery.kubernetes "pod_logs" {
+  role = "pod"
+}
+
+discovery.relabel "pod_logs" {
+  targets = discovery.kubernetes.pod_logs.targets
+
+%{ if loki_scrape_global == false }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_loki_grafana_com_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
+%{ endif }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_loki_grafana_com_scrape"]
+    regex         = "false"
+    action        = "drop"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_node_name"]
+    target_label  = "__host__"
+  }
+
+  rule {
+    regex  = "__meta_kubernetes_pod_label_(.+)"
+    action = "labelmap"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_name"]
+    separator     = "/"
+    target_label  = "job"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+    separator     = "/"
+    target_label  = "__path__"
+    replacement   = "/var/log/pods/*$1/*.log"
+  }
+}
+
+local.file_match "pod_logs" {
+  path_targets = discovery.relabel.pod_logs.output
+}
+
+loki.process "pod_logs" {
+  forward_to = [loki.write.logs_default.receiver]
+
+  stage.docker {}
+
+  stage.cri {}
+}
+
+loki.source.file "pod_logs" {
+  targets = local.file_match.pod_logs.targets
+  forward_to = [loki.process.pod_logs.receiver]
+}
+
+loki.write "logs_default" {
+  endpoint {
+    url       = "${loki_url}"
+    tenant_id = "${tenant_id}"
+
+    basic_auth {
+      username = "${loki_username}"
+      password = "${loki_password}"
+    }
+  }
+  external_labels = {
+    aws_account = "${aws_account}",
+    aws_region  = "${aws_region}",
+    cluster     = "${cluster_name}",
+  }
+}
+
+prometheus.exporter.unix "integrations_node_exporter" {
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+  rootfs_path = "/host/root"
+}
+
+discovery.relabel "integrations_node_exporter" {
+  targets = prometheus.exporter.unix.integrations_node_exporter.targets
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/node_exporter"
+  }
+}
+
+prometheus.scrape "integrations_node_exporter" {
+  targets    = discovery.relabel.integrations_node_exporter.output
+  forward_to = [prometheus.remote_write.integrations.receiver]
+  job_name   = "integrations/node_exporter"
+}
+
+prometheus.remote_write "integrations" {
+  external_labels = {
+    cluster = "${cluster_name}",
+    organization = "${project}",
+  }
+
+  endpoint {
+    url = "${prometheus_url}"
+    basic_auth {
+      username = "${prometheus_username}"
+      password = "${prometheus_password}"
+    }
+    queue_config {}
+    metadata_config {}
+    headers = {
+      "X-Scope-OrgID" = "${tenant_id}",
+    }
+  }
+}
