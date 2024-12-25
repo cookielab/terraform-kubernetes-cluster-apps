@@ -181,3 +181,17 @@ variable "alloy" {
     cluster_template_file_path = optional(string, null)
   })
 }
+
+variable "cert_manager" {
+  description = "cert manager configuration"
+  type = object({
+    enabled       = optional(bool, false)
+    node_selector = optional(map(string), null)
+    tolerations = optional(list(object({
+      key      = string
+      operator = string
+      value    = optional(string, null)
+      effect   = optional(string, null)
+    })), null)
+  })
+}

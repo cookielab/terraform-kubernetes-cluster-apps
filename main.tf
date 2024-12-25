@@ -85,3 +85,13 @@ module "alloy" {
   cluster_name = var.cluster_name
   project      = var.project
 }
+
+module "cert_manager" {
+  count = var.cert_manager.enabled ? 1 : 0
+
+  source = "./modules/cert-manager"
+
+  namespace     = local.namespace
+  node_selector = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
+  tolerations   = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
+}
