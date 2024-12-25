@@ -164,18 +164,32 @@ variable "alloy" {
   description = "grafana alloy configuration"
   type = object({
     enabled = optional(bool, true)
-    loki = object({
-      url      = string
-      username = string
-      password = string
-    })
+    loki = optional(
+      object({
+        url      = string
+        username = string
+        password = string
+      }),
+      {
+        url      = null
+        username = null
+        password = null
+      }
+    )
     loki_scrape_global             = optional(bool, false)
     loki_collect_self_logs_enabled = optional(bool, false)
-    prometheus = object({
-      url      = string
-      username = string
-      password = string
-    })
+    prometheus = optional(
+      object({
+        url      = string
+        username = string
+        password = string
+      }),
+      {
+        url      = null
+        username = null
+        password = null
+      }
+    )
     tenant_id                  = optional(string, "default")
     node_template_file_path    = optional(string, null)
     cluster_template_file_path = optional(string, null)
