@@ -297,7 +297,7 @@ prometheus.remote_write "metrics_default" {
   endpoint {
     url  = "${prometheus_url}"
 
-%{ if prometheus_username || prometheus_password }
+%{ if try(prometheus_username, null) != null || try(prometheus_password, null) != null }
     basic_auth {
       username = "${prometheus_username}"
       password = "${prometheus_password}"
@@ -313,13 +313,13 @@ prometheus.remote_write "metrics_default" {
   }
 }
 
-%{ if loki_url }
+%{ if try(loki_url, null) != null }
 loki.write "logs_default" {
   endpoint {
     url       = "${loki_url}"
     tenant_id = "${tenant_id}"
 
-%{ if loki_username || loki_password }
+%{ if try(loki_username, null) != null || try(loki_password, null) != null }
     basic_auth {
       username = "${loki_username}"
       password = "${loki_password}"

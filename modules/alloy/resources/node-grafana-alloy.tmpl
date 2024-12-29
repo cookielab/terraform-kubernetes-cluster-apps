@@ -1,4 +1,4 @@
-%{ if loki_url }
+%{ if try(loki_url, "") != "" }
 discovery.kubernetes "pod_logs" {
   role = "pod"
 }
@@ -79,13 +79,13 @@ loki.write "logs_default" {
   endpoint {
     url       = "${loki_url}"
     tenant_id = "${tenant_id}"
-%{ if loki_username || loki_password }
+%{ if try(loki_username, "") != "" || try(loki_password, "") != "" }
     basic_auth {
       username = "${loki_username}"
       password = "${loki_password}"
     }
-  }
 %{ endif }
+  }
   external_labels = {
     aws_account = "${aws_account}",
     aws_region  = "${aws_region}",
@@ -123,7 +123,7 @@ prometheus.remote_write "integrations" {
 
   endpoint {
     url = "${prometheus_url}"
-%{ if prometheus_username || prometheus_password }
+%{ if try(prometheus_username, "") != "" || try(prometheus_password, "") != "" }
     basic_auth {
       username = "${prometheus_username}"
       password = "${prometheus_password}"
