@@ -297,7 +297,7 @@ prometheus.remote_write "metrics_default" {
   endpoint {
     url  = "${prometheus_url}"
 
-%{ if try(prometheus_username, null) != null || try(prometheus_password, null) != null }
+%{ if try(prometheus_username, null) != null && try(prometheus_password, null) != null }
     basic_auth {
       username = "${prometheus_username}"
       password = "${prometheus_password}"
@@ -307,9 +307,11 @@ prometheus.remote_write "metrics_default" {
     queue_config { }
 
     metadata_config { }
+%{ if try(tenant_id, null) != null }
     headers = {
       "X-Scope-OrgID" = "${tenant_id}",
     }
+%{ endif }
   }
 }
 
@@ -317,9 +319,11 @@ prometheus.remote_write "metrics_default" {
 loki.write "logs_default" {
   endpoint {
     url       = "${loki_url}"
+%{ if try(tenant_id, null) != null }
     tenant_id = "${tenant_id}"
+%{ endif }
 
-%{ if try(loki_username, null) != null || try(loki_password, null) != null }
+%{ if try(loki_username, null) != null && try(loki_password, null) != null }
     basic_auth {
       username = "${loki_username}"
       password = "${loki_password}"

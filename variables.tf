@@ -176,7 +176,7 @@ variable "alloy" {
         password = null
       }
     )
-    loki_scrape_global             = optional(bool, false)
+    loki_scrape_global             = optional(bool, true)
     loki_collect_self_logs_enabled = optional(bool, false)
     prometheus = optional(
       object({

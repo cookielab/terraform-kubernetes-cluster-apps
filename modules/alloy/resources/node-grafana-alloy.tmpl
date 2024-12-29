@@ -1,4 +1,4 @@
-%{ if try(loki_url, "") != "" }
+%{ if try(loki_url, null) != null }
 discovery.kubernetes "pod_logs" {
   role = "pod"
 }
@@ -78,8 +78,10 @@ loki.source.file "pod_logs" {
 loki.write "logs_default" {
   endpoint {
     url       = "${loki_url}"
+%{ if try(tenant_id, null) != null }
     tenant_id = "${tenant_id}"
-%{ if try(loki_username, "") != "" || try(loki_password, "") != "" }
+%{ endif }
+%{ if try(loki_username, null) != null && try(loki_password, null) != null }
     basic_auth {
       username = "${loki_username}"
       password = "${loki_password}"
@@ -123,7 +125,7 @@ prometheus.remote_write "integrations" {
 
   endpoint {
     url = "${prometheus_url}"
-%{ if try(prometheus_username, "") != "" || try(prometheus_password, "") != "" }
+%{ if try(prometheus_username, null) != null || try(prometheus_password, null) != null }
     basic_auth {
       username = "${prometheus_username}"
       password = "${prometheus_password}"
@@ -131,8 +133,10 @@ prometheus.remote_write "integrations" {
 %{ endif }
     queue_config {}
     metadata_config {}
+%{ if try(tenant_id, null) != null }
     headers = {
       "X-Scope-OrgID" = "${tenant_id}",
     }
+%{ endif }
   }
 }
