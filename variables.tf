@@ -34,7 +34,7 @@ variable "tolerations" {
     key      = string
     operator = string
     value    = optional(string, null)
-    effect   = string
+    effect   = optional(string, null)
   }))
   default = [{
     key      = "CriticalAddonsOnly"
@@ -167,8 +167,8 @@ variable "alloy" {
     loki = optional(
       object({
         url      = string
-        username = string
-        password = string
+        username = optional(string, null)
+        password = optional(string, null)
       }),
       {
         url      = null
@@ -181,8 +181,8 @@ variable "alloy" {
     prometheus = optional(
       object({
         url      = string
-        username = string
-        password = string
+        username = optional(string, null)
+        password = optional(string, null)
       }),
       {
         url      = null
