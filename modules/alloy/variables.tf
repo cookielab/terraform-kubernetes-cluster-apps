@@ -17,15 +17,15 @@ variable "loki" {
   description = "configuration for loki"
   type = object({
     url      = string
-    username = string
-    password = string
+    username = optional(string, null)
+    password = optional(string, null)
   })
 }
 
 variable "loki_scrape_global" {
   description = "loki scrape global"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "loki_collect_self_logs_enabled" {
@@ -38,8 +38,8 @@ variable "prometheus" {
   description = "configuration for prometheus"
   type = object({
     url      = string
-    username = string
-    password = string
+    username = optional(string, null)
+    password = optional(string, null)
   })
 }
 

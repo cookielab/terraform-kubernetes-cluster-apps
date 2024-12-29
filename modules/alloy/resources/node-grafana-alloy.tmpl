@@ -1,3 +1,4 @@
+%{ if loki_url }
 discovery.kubernetes "pod_logs" {
   role = "pod"
 }
@@ -78,18 +79,20 @@ loki.write "logs_default" {
   endpoint {
     url       = "${loki_url}"
     tenant_id = "${tenant_id}"
-
+%{ if loki_username || loki_password }
     basic_auth {
       username = "${loki_username}"
       password = "${loki_password}"
     }
   }
+%{ endif }
   external_labels = {
     aws_account = "${aws_account}",
     aws_region  = "${aws_region}",
     cluster     = "${cluster_name}",
   }
 }
+%{ endif }
 
 prometheus.exporter.unix "integrations_node_exporter" {
   procfs_path = "/host/proc"
@@ -120,10 +123,12 @@ prometheus.remote_write "integrations" {
 
   endpoint {
     url = "${prometheus_url}"
+%{ if prometheus_username || prometheus_password }
     basic_auth {
       username = "${prometheus_username}"
       password = "${prometheus_password}"
     }
+%{ endif }
     queue_config {}
     metadata_config {}
     headers = {
