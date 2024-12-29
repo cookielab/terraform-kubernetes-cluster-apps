@@ -1,334 +1,334 @@
 discovery.kubernetes "kubernetes_cadvisor" {
-        role = "node"
+  role = "node"
 }
 
 discovery.kubernetes "service_endpoints" {
-        role = "endpoints"
+  role = "endpoints"
 }
 
 discovery.kubernetes "nodes" {
-        role = "node"
+  role = "node"
 }
 
 discovery.kubernetes "pods" {
-        role = "pod"
+  role = "pod"
 }
 
 discovery.kubernetes "autoscaler" {
-        role = "pod"
+  role = "pod"
 }
 
 discovery.kubernetes "activator" {
-        role = "pod"
+  role = "pod"
 }
 
 discovery.relabel "kubernetes_cadvisor" {
-        targets = discovery.kubernetes.kubernetes_cadvisor.targets
+  targets = discovery.kubernetes.kubernetes_cadvisor.targets
 
-        rule {
-                regex  = "__meta_kubernetes_node_label_(.+)"
-                action = "labelmap"
-        }
+  rule {
+    regex  = "__meta_kubernetes_node_label_(.+)"
+    action = "labelmap"
+  }
 
-        rule {
-                target_label = "__address__"
-                replacement  = "kubernetes.default.svc:443"
-        }
+  rule {
+    target_label = "__address__"
+    replacement  = "kubernetes.default.svc:443"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_node_name"]
-                regex         = "(.+)"
-                target_label  = "__metrics_path__"
-                replacement   = "/api/v1/nodes/1/proxy/metrics/cadvisor"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+    replacement   = "/api/v1/nodes/1/proxy/metrics/cadvisor"
+  }
 }
 
 discovery.relabel "service_endpoints" {
-        targets = discovery.kubernetes.service_endpoints.targets
+  targets = discovery.kubernetes.service_endpoints.targets
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
-                regex         = "true"
-                action        = "keep"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_scheme"]
-                regex         = "(https?)"
-                target_label  = "__scheme__"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_scheme"]
+    regex         = "(https?)"
+    target_label  = "__scheme__"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_path"]
-                regex         = "(.+)"
-                target_label  = "__metrics_path__"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_annotation_prometheus_io_path"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+  }
 
-        rule {
-                source_labels = ["__address__", "__meta_kubernetes_service_annotation_prometheus_io_port"]
-                regex         = "(.+)(?::d+);(d+)"
-                target_label  = "__address__"
-                replacement   = "$1:$2"
-        }
+  rule {
+    source_labels = ["__address__", "__meta_kubernetes_service_annotation_prometheus_io_port"]
+    regex         = "(.+)(?::d+);(d+)"
+    target_label  = "__address__"
+    replacement   = "$1:$2"
+  }
 
-        rule {
-                regex  = "__meta_kubernetes_service_label_(.+)"
-                action = "labelmap"
-        }
+  rule {
+    regex  = "__meta_kubernetes_service_label_(.+)"
+    action = "labelmap"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace"]
-                target_label  = "kubernetes_namespace"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "kubernetes_namespace"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_name"]
-                target_label  = "kubernetes_name"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_name"]
+    target_label  = "kubernetes_name"
+  }
 }
 
 discovery.relabel "nodes" {
-        targets = discovery.kubernetes.nodes.targets
+  targets = discovery.kubernetes.nodes.targets
 
-        rule {
-                regex  = "__meta_kubernetes_node_label_(.+)"
-                action = "labelmap"
-        }
+  rule {
+    regex  = "__meta_kubernetes_node_label_(.+)"
+    action = "labelmap"
+  }
 
-        rule {
-                target_label = "__address__"
-                replacement  = "kubernetes.default.svc:443"
-        }
+  rule {
+    target_label = "__address__"
+    replacement  = "kubernetes.default.svc:443"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_node_name"]
-                regex         = "(.+)"
-                target_label  = "__metrics_path__"
-                replacement   = "/api/v1/nodes/1/proxy/metrics"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_node_name"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+    replacement   = "/api/v1/nodes/1/proxy/metrics"
+  }
 }
 
 discovery.relabel "pods" {
-        targets = discovery.kubernetes.pods.targets
+  targets = discovery.kubernetes.pods.targets
 
-        rule {
-                source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
-                regex         = "true"
-                action        = "keep"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scrape"]
+    regex         = "true"
+    action        = "keep"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
-                regex         = "(.+)"
-                target_label  = "__metrics_path__"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+    regex         = "(.+)"
+    target_label  = "__metrics_path__"
+  }
 
-        rule {
-                source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
-                regex         = "([^:]+)(?::[0-9]+)?;([0-9]+)"
-                target_label  = "__address__"
-                replacement   = "$1:$2"
-        }
+  rule {
+    source_labels = ["__address__", "__meta_kubernetes_pod_annotation_prometheus_io_port"]
+    regex         = "([^:]+)(?::[0-9]+)?;([0-9]+)"
+    target_label  = "__address__"
+    replacement   = "$1:$2"
+  }
 
-        rule {
-                regex  = "__meta_kubernetes_pod_label_(.+)"
-                action = "labelmap"
-        }
+  rule {
+    regex  = "__meta_kubernetes_pod_label_(.+)"
+    action = "labelmap"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace"]
-                target_label  = "kubernetes_namespace"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "kubernetes_namespace"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_pod_name"]
-                target_label  = "kubernetes_pod_name"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "kubernetes_pod_name"
+  }
 }
 
 discovery.relabel "autoscaler" {
-        targets = discovery.kubernetes.autoscaler.targets
+  targets = discovery.kubernetes.autoscaler.targets
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app", "__meta_kubernetes_pod_container_port_name"]
-                regex         = "knative-serving;autoscaler;metrics"
-                action        = "keep"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app", "__meta_kubernetes_pod_container_port_name"]
+    regex         = "knative-serving;autoscaler;metrics"
+    action        = "keep"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace"]
-                target_label  = "namespace"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_pod_name"]
-                target_label  = "pod"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_name"]
-                target_label  = "service"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_name"]
+    target_label  = "service"
+  }
 }
 
 discovery.relabel "activator" {
-        targets = discovery.kubernetes.activator.targets
+  targets = discovery.kubernetes.activator.targets
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app", "__meta_kubernetes_pod_container_port_name"]
-                regex         = "knative-serving;activator;metrics-port"
-                action        = "keep"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_label_app", "__meta_kubernetes_pod_container_port_name"]
+    regex         = "knative-serving;activator;metrics-port"
+    action        = "keep"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_namespace"]
-                target_label  = "namespace"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_pod_name"]
-                target_label  = "pod"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
 
-        rule {
-                source_labels = ["__meta_kubernetes_service_name"]
-                target_label  = "service"
-        }
+  rule {
+    source_labels = ["__meta_kubernetes_service_name"]
+    target_label  = "service"
+  }
 }
 
 prometheus.scrape "kubernetes_cadvisor" {
-        targets    = discovery.relabel.kubernetes_cadvisor.output
-        forward_to = [prometheus.relabel.kubernetes_cadvisor.receiver]
-        job_name   = "integrations/kubernetes/cadvisor"
-        scheme     = "https"
+  targets    = discovery.relabel.kubernetes_cadvisor.output
+  forward_to = [prometheus.relabel.kubernetes_cadvisor.receiver]
+  job_name   = "integrations/kubernetes/cadvisor"
+  scheme     = "https"
 
-        authorization {
-                type             = "Bearer"
-                credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-        }
+  authorization {
+    type             = "Bearer"
+    credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  }
 
-        tls_config {
-                ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-                insecure_skip_verify = true
-        }
+  tls_config {
+    ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    insecure_skip_verify = true
+  }
 }
 
 prometheus.scrape "service_endpoints" {
-        targets    = discovery.relabel.service_endpoints.output
-        forward_to = [prometheus.remote_write.metrics_default.receiver]
-        job_name   = "kubernetes-service-endpoints"
+  targets    = discovery.relabel.service_endpoints.output
+  forward_to = [prometheus.remote_write.metrics_default.receiver]
+  job_name   = "kubernetes-service-endpoints"
 }
 
 prometheus.scrape "nodes" {
-        targets    = discovery.relabel.nodes.output
-        forward_to = [prometheus.relabel.nodes.receiver]
-        job_name   = "kubernetes-nodes"
-        scheme     = "https"
+  targets    = discovery.relabel.nodes.output
+  forward_to = [prometheus.relabel.nodes.receiver]
+  job_name   = "kubernetes-nodes"
+  scheme     = "https"
 
-        authorization {
-                type             = "Bearer"
-                credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-        }
+  authorization {
+    type             = "Bearer"
+    credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  }
 
-        tls_config {
-                ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-                insecure_skip_verify = true
-        }
+  tls_config {
+    ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    insecure_skip_verify = true
+  }
 }
 
 prometheus.scrape "pods" {
-        targets    = discovery.relabel.pods.output
-        forward_to = [prometheus.remote_write.metrics_default.receiver]
-        job_name   = "kubernetes-pods"
+  targets    = discovery.relabel.pods.output
+  forward_to = [prometheus.remote_write.metrics_default.receiver]
+  job_name   = "kubernetes-pods"
 
-        authorization {
-                type             = "Bearer"
-                credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
-        }
+  authorization {
+    type             = "Bearer"
+    credentials_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  }
 
-        tls_config {
-                ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-                insecure_skip_verify = true
-        }
+  tls_config {
+    ca_file              = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    insecure_skip_verify = true
+  }
 }
 
 prometheus.scrape "autoscaler" {
-        targets         = discovery.relabel.autoscaler.output
-        forward_to      = [prometheus.remote_write.metrics_default.receiver]
-        job_name        = "autoscaler"
-        scrape_interval = "3s"
-        scrape_timeout  = "3s"
+  targets         = discovery.relabel.autoscaler.output
+  forward_to      = [prometheus.remote_write.metrics_default.receiver]
+  job_name        = "autoscaler"
+  scrape_interval = "3s"
+  scrape_timeout  = "3s"
 }
 
 prometheus.scrape "activator" {
-        targets         = discovery.relabel.activator.output
-        forward_to      = [prometheus.remote_write.metrics_default.receiver]
-        job_name        = "activator"
-        scrape_interval = "3s"
-        scrape_timeout  = "3s"
+  targets         = discovery.relabel.activator.output
+  forward_to      = [prometheus.remote_write.metrics_default.receiver]
+  job_name        = "activator"
+  scrape_interval = "3s"
+  scrape_timeout  = "3s"
 }
 
 prometheus.relabel "kubernetes_cadvisor" {
-        forward_to = [prometheus.remote_write.metrics_default.receiver]
+  forward_to = [prometheus.remote_write.metrics_default.receiver]
 
-        rule {
-                source_labels = ["pod_name"]
-                regex         = "(.+)-.+-.+"
-                target_label  = "environment"
-        }
+  rule {
+    source_labels = ["pod_name"]
+    regex         = "(.+)-.+-.+"
+    target_label  = "environment"
+  }
 }
 
 prometheus.relabel "nodes" {
-        forward_to = [prometheus.remote_write.metrics_default.receiver]
+  forward_to = [prometheus.remote_write.metrics_default.receiver]
 
-        rule {
-                source_labels = ["pod_name"]
-                regex         = "(.+)-.+-.+"
-                target_label  = "environment"
-        }
+  rule {
+    source_labels = ["pod_name"]
+    regex         = "(.+)-.+-.+"
+    target_label  = "environment"
+  }
 }
 
 prometheus.remote_write "metrics_default" {
-        external_labels = {
-                cluster = "${cluster_name}",
-                organization = "${project}",
-        }
+  external_labels = {
+    cluster = "${cluster_name}",
+    organization = "${project}",
+  }
 
-        endpoint {
-                url  = "${prometheus_url}"
+  endpoint {
+    url  = "${prometheus_url}"
 
-                basic_auth {
-                        username = "${prometheus_username}"
-                        password = "${prometheus_password}"
-                }
+    basic_auth {
+      username = "${prometheus_username}"
+      password = "${prometheus_password}"
+    }
 
-                queue_config { }
+    queue_config { }
 
-                metadata_config { }
-                headers = {
-                        "X-Scope-OrgID" = "${tenant_id}",
-                }
-        }
+    metadata_config { }
+    headers = {
+      "X-Scope-OrgID" = "${tenant_id}",
+    }
+  }
 }
 
 loki.write "logs_default" {
-        endpoint {
-                url       = "${loki_url}"
-                tenant_id = "${tenant_id}"
+  endpoint {
+    url       = "${loki_url}"
+    tenant_id = "${tenant_id}"
 
-                basic_auth {
-                        username = "${loki_username}"
-                        password = "${loki_password}"
-                }
-        }
-        external_labels = {
-                aws_account = "${aws_account}",
-                aws_region  = "${aws_region}",
-                cluster     = "${cluster_name}",
-                job         = "integrations/kubernetes/eventhandler",
-        }
+    basic_auth {
+      username = "${loki_username}"
+      password = "${loki_password}"
+    }
+  }
+  external_labels = {
+    aws_account = "${aws_account}",
+    aws_region  = "${aws_region}",
+    cluster     = "${cluster_name}",
+    job         = "integrations/kubernetes/eventhandler",
+  }
 }
 
 logging {
-        level = "info"
+  level = "info"
 }
