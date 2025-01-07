@@ -35,13 +35,18 @@ module "karpenter" {
 
   source = "./modules/karpenter"
 
-  namespace     = local.namespace
-  cluster_name  = var.cluster_name
-  repository    = var.karpenter.repository
-  node_selector = var.karpenter.node_selector != null ? var.karpenter.node_selector : var.node_selector
-  tolerations   = var.karpenter.tolerations != null ? var.karpenter.tolerations : var.tolerations
-  replicas      = var.karpenter.replicas
-  tag_key       = var.karpenter.tag_key
+  namespace                  = local.namespace
+  cluster_name               = var.cluster_name
+  repository                 = var.karpenter.repository
+  node_selector              = var.karpenter.node_selector != null ? var.karpenter.node_selector : var.node_selector
+  tolerations                = var.karpenter.tolerations != null ? var.karpenter.tolerations : var.tolerations
+  replicas                   = var.karpenter.replicas
+  tag_key                    = var.karpenter.tag_key
+  enable_disruption          = var.karpenter.enable_disruption
+  batch_max_duration         = var.karpenter.batch_max_duration
+  batch_idle_duration        = var.karpenter.batch_idle_duration
+  spot_to_spot_consolidation = var.karpenter.spot_to_spot_consolidation
+  pod_annotations            = var.karpenter.pod_annotationsy
 }
 
 module "external_secrets" {

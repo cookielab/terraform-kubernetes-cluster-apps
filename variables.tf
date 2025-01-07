@@ -73,6 +73,7 @@ variable "karpenter" {
     })), null)
     replicas                   = optional(number, 2)
     tag_key                    = optional(string, "eks:eks-cluster-name")
+    enable_disruption          = optional(bool, true)
     batch_max_duration         = optional(string, "10s")
     batch_idle_duration        = optional(string, "1s")
     spot_to_spot_consolidation = optional(bool, false)
