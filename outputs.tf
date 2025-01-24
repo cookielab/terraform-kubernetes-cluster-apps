@@ -2,6 +2,6 @@ output "namespace" {
   value = local.namespace
 }
 
-output "karpenter_node_role_name" {
-  value = module.karpenter[0].node_role_name
+output "karpenter_role_name" {
+  value = var.karpenter.enabled ? module.karpenter[0].karpenter_role_name : null
 }
