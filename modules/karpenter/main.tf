@@ -33,12 +33,34 @@ resource "helm_release" "crds" {
   version    = "1.1.0"
 }
 
+data "aws_iam_policy_document" "iam_pass_role" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:PassRole"]
+    resources = [var.node_role]
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_policy" "iam_pass_role" {
+  name   = "karpenter-node"
+  policy = data.aws_iam_policy_document.iam_pass_role.json
+}
+
 module "irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "5.48.0"
 
   role_name_prefix = "karpenter-${data.aws_eks_cluster.this.name}"
   role_description = "IRSA role for karpenter"
+
+  role_policy_arns = {
+    policy = aws_iam_policy.iam_pass_role.arn
+  }
 
   attach_karpenter_controller_policy         = true
   enable_karpenter_instance_profile_creation = true

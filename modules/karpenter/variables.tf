@@ -79,3 +79,7 @@ variable "pod_annotations" {
   type        = map(string)
   default     = {}
 }
+
+variable "node_role" {
+  type = string
+}
