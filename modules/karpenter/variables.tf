@@ -80,6 +80,7 @@ variable "pod_annotations" {
   default     = {}
 }
 
-variable "node_role" {
-  type = string
+variable "node_role_arn" {
+  description = "ARN of IAM role to assume by nodes spinned by karpenter"
+  type        = string
 }

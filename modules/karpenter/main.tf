@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "iam_pass_role" {
   statement {
     effect    = "Allow"
     actions   = ["iam:PassRole"]
-    resources = [var.node_role]
+    resources = [var.node_role_arn]
     condition {
       test     = "StringEquals"
       variable = "iam:PassedToService"
