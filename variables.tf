@@ -78,6 +78,7 @@ variable "karpenter" {
     batch_idle_duration        = optional(string, "1s")
     spot_to_spot_consolidation = optional(bool, false)
     pod_annotations            = optional(map(string), {})
+    node_role_arn              = optional(string, null)
   })
   default = {}
 }

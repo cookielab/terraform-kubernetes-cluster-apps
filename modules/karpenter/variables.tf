@@ -79,3 +79,8 @@ variable "pod_annotations" {
   type        = map(string)
   default     = {}
 }
+
+variable "node_role_arn" {
+  description = "ARN of IAM role to assume by nodes spinned by karpenter"
+  type        = string
+}

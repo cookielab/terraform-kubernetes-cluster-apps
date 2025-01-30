@@ -47,6 +47,7 @@ module "karpenter" {
   batch_idle_duration        = var.karpenter.batch_idle_duration
   spot_to_spot_consolidation = var.karpenter.spot_to_spot_consolidation
   pod_annotations            = var.karpenter.pod_annotations
+  node_role_arn              = var.karpenter.node_role_arn
 }
 
 module "external_secrets" {
