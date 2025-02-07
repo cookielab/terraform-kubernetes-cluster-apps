@@ -52,7 +52,7 @@
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | name of the EKS cluster | `string` | n/a | yes |
 | <a name="input_enable_disruption"></a> [enable\_disruption](#input\_enable\_disruption) | enable disruption handler | `bool` | `true` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | value of the namespace to deploy the karpenter | `string` | `"cluster-apps"` | no |
-| <a name="input_node_role_arn"></a> [node\_role\_arn](#input\_node\_role\_arn) | ARN of IAM role to assume by nodes spinned by karpenter | `string` | n/a | yes |
+| <a name="input_node_role_arn"></a> [node\_role\_arn](#input\_node\_role\_arn) | ARN of IAM role to assume by nodes spinned by karpenter | `string` | `null` | no |
 | <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | node selector to deploy the karpenter | `map(string)` | <pre>{<br/>  "node.kubernetes.io/pool": "critical"<br/>}</pre> | no |
 | <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | annotations to deploy the karpenter | `map(string)` | `{}` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | number of replicas to deploy the karpenter | `number` | `2` | no |
