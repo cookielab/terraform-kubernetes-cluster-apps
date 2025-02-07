@@ -34,6 +34,8 @@ resource "helm_release" "crds" {
 }
 
 data "aws_iam_policy_document" "iam_pass_role" {
+  count = var.node_role_arn != null ? 1 : 0
+
   statement {
     effect    = "Allow"
     actions   = ["iam:PassRole"]
@@ -47,8 +49,15 @@ data "aws_iam_policy_document" "iam_pass_role" {
 }
 
 resource "aws_iam_policy" "iam_pass_role" {
+  count  = var.node_role_arn != null ? 1 : 0
+
   name   = "karpenter-node"
-  policy = data.aws_iam_policy_document.iam_pass_role.json
+  policy = data.aws_iam_policy_document.iam_pass_role[0].json
+}
+
+moved { 
+  from = aws_iam_policy.iam_pass_role
+  to   = aws_iam_policy.iam_pass_role[0]
 }
 
 module "irsa" {
@@ -58,8 +67,8 @@ module "irsa" {
   role_name_prefix = "karpenter-${data.aws_eks_cluster.this.name}"
   role_description = "IRSA role for karpenter"
 
-  role_policy_arns = {
-    policy = aws_iam_policy.iam_pass_role.arn
+  role_policy_arns = var.node_role_arn == null ? {} : {
+    policy = aws_iam_policy.iam_pass_role[0].arn 
   }
 
   attach_karpenter_controller_policy         = true
