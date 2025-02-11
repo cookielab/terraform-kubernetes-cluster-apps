@@ -51,7 +51,7 @@ data "aws_iam_policy_document" "iam_pass_role" {
 resource "aws_iam_policy" "iam_pass_role" {
   count  = var.node_role_arn != null ? 1 : 0
 
-  name   = "karpenter-node"
+  name   = "${data.aws_eks_cluster.this.name}-karpenter-node"
   policy = data.aws_iam_policy_document.iam_pass_role[0].json
 }
 
