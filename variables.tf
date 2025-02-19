@@ -83,6 +83,27 @@ variable "karpenter" {
   default = {}
 }
 
+variable "keda" {
+  description = "Keda configuration"
+  type = object({
+    enabled        = optional(bool, false)
+    repository     = optional(string, "https://kedacore.github.io/charts")
+    namespace      = optional(string, "cluster-apps")
+    replicas       = optional(number, 2)
+    log_level      = optional(string, "info")
+    metrics_server = optional(bool, true)
+    node_selector  = optional(map(string), {})
+    tolerations = optional(list(object({
+      key      = string
+      operator = string
+      value    = optional(string, null)
+      effect   = optional(string, null)
+    })), [])
+    pod_annotations = optional(map(string), {})
+  })
+  default = {}
+}
+
 variable "external_secrets" {
   description = "external secrets configuration"
   type = object({
