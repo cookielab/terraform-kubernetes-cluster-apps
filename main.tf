@@ -50,6 +50,20 @@ module "karpenter" {
   node_role_arn              = var.karpenter.node_role_arn
 }
 
+module "keda" {
+  count  = var.keda.enabled ? 1 : 0
+  source = "./modules/keda"
+
+  namespace       = var.keda.namespace
+  repository      = var.keda.repository
+  replicas        = var.keda.replicas
+  log_level       = var.keda.log_level
+  metrics_server  = var.keda.metrics_server
+  node_selector   = var.keda.node_selector
+  tolerations     = var.keda.tolerations
+  pod_annotations = var.keda.pod_annotations
+}
+
 module "external_secrets" {
   count = var.external_secrets.enabled ? 1 : 0
 
