@@ -62,6 +62,7 @@ module "keda" {
   node_selector   = var.keda.node_selector
   tolerations     = var.keda.tolerations
   pod_annotations = var.keda.pod_annotations
+  role_arn        = var.keda.role_arn
 }
 
 module "external_secrets" {
