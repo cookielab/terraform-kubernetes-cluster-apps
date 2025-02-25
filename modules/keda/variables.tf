@@ -50,3 +50,9 @@ variable "pod_annotations" {
   type        = map(string)
   default     = {}
 }
+
+variable "role_arn" {
+  description = "IAM Role for Keda ServiceAccount"
+  type        = string
+  nullable    = true
+}

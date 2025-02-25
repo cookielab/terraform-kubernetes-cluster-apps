@@ -34,6 +34,7 @@ No modules.
 | <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | Annotations for Keda pods | `map(string)` | `{}` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | Number of replicas for Keda operator | `number` | `2` | no |
 | <a name="input_repository"></a> [repository](#input\_repository) | Helm repository URL for Keda | `string` | `"https://kedacore.github.io/charts"` | no |
+| <a name="input_role_arn"></a> [role\_arn](#input\_role\_arn) | IAM Role for Keda ServiceAccount | `string` | n/a | yes |
 | <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | Tolerations for Keda pods | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    value    = optional(string, null)<br/>    effect   = optional(string, null)<br/>  }))</pre> | `[]` | no |
 
 ## Outputs
