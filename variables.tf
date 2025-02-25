@@ -93,6 +93,7 @@ variable "keda" {
     log_level      = optional(string, "info")
     metrics_server = optional(bool, true)
     node_selector  = optional(map(string), {})
+    role_arn       = optional(string, "")
     tolerations = optional(list(object({
       key      = string
       operator = string

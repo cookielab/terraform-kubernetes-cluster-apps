@@ -13,6 +13,14 @@ resource "helm_release" "keda" {
       nodeSelector   = var.node_selector
       tolerations    = var.tolerations
       podAnnotations = var.pod_annotations
+      podIdentity    = {
+        aws = {
+          irsa = {
+            enabled = var.role_arn != "" ? true : false
+            roleArn = var.role_arn
+          }
+        }
+      }
     })
   ]
 }
