@@ -4,7 +4,7 @@ resource "helm_release" "external_secrets_operator" {
 
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
-  version    = "0.15.0"
+  version    = "0.15.1"
 
   values = [yamlencode({
     image = {
