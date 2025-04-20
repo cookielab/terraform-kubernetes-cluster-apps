@@ -30,7 +30,7 @@ resource "helm_release" "crds" {
 
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter-crd"
-  version    = "1.3.3"
+  version    = "1.4.0"
 }
 
 data "aws_iam_policy_document" "iam_pass_role" {
