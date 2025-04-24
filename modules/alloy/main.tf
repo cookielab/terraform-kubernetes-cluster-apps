@@ -13,7 +13,7 @@ resource "helm_release" "node" {
   chart      = "alloy"
   name       = "node-agent"
   namespace  = var.namespace
-  version    = "1.0.1"
+  version    = "1.0.2"
   values = [
     yamlencode({
       alloy = {
@@ -101,7 +101,7 @@ resource "helm_release" "cluster" {
   chart      = "alloy"
   name       = "cluster-agent"
   namespace  = var.namespace
-  version    = "1.0.1"
+  version    = "1.0.2"
   values = [
     yamlencode({
       controller = {
