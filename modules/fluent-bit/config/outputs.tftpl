@@ -1,0 +1,49 @@
+%{if use_defaults.outputs}
+[OUTPUT]
+    Name ${logs_storage == "elasticsearch" ? "es" : "loki"}
+    Match kube.*
+    Host ${logs_endpoint_url}
+    Logstash_Format On
+    Retry_Limit False
+    %{ if elasticsearch.auth.enabled && logs_storage == "elasticsearch" }
+    HTTP_User = ${elasticsearch.auth.username}
+    HTTP_Passwd = ${elasticsearch.auth.password}
+    %{ endif }
+    %{ if logs_storage == "loki" }
+    tenant_id = ${loki.tenant_id}
+    %{ endif }
+    %{ if loki.basic_auth.enabled }
+    http_user = ${loki.basic_auth.username}
+    http_passwd = ${loki.basic_auth.password}
+    %{ endif }
+    %{ if loki.bearer_token.enabled }
+    bearer_token = ${loki.bearer_token.token}
+    %{ endif }
+
+[OUTPUT]
+    Name ${logs_storage == "elasticsearch" ? "es" : "loki"}
+    Match host.*
+    Host ${logs_endpoint_url}
+    Logstash_Format On
+    Logstash_Prefix node
+    Retry_Limit False
+    %{ if elasticsearch.auth.enabled && logs_storage == "elasticsearch" }
+    HTTP_User = ${elasticsearch.auth.username}
+    HTTP_Passwd = ${elasticsearch.auth.password}
+    %{ endif }
+    %{ if logs_storage == "loki" }
+    tenant_id = ${loki.tenant_id}
+    %{ endif }
+    %{ if loki.basic_auth.enabled }
+    http_user = ${loki.basic_auth.username}
+    http_passwd = ${loki.basic_auth.password}
+    %{ endif }
+    %{ if loki.bearer_token.enabled }
+    bearer_token = ${loki.bearer_token.token}
+    %{ endif }
+%{ endif }
+
+%{ for key, output in logs_custom }
+[OUTPUT]
+    ${ output }
+%{ endfor }
