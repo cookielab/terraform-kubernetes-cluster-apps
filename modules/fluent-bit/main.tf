@@ -24,6 +24,10 @@ resource "helm_release" "fluentbit" {
         loki              = var.loki
       })
     }
+    tolerations = var.tolerations
+    nodeSelector = var.node_selector
+    labels = var.labels
+    podAnnotations = var.pod_annotations
   })]
 }
 

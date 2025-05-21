@@ -94,8 +94,12 @@ module "fluent-bit" {
 
   source = "./modules/fluent-bit"
 
-  namespace    = local.namespace
-  logs_storage = var.fluent_bit.logs_storage
+  namespace       = local.namespace
+  logs_storage    = var.fluent_bit.logs_storage
+  tolerations     = var.fluent_bit.tolerations
+  node_selector   = var.fluent_bit.node_selector
+  labels          = var.fluent_bit.labels
+  pod_annotations = var.fluent_bit.pod_annotations
   loki = {
     tenant_id = var.fluent_bit.loki.tenant_id
     basic_auth = {

@@ -12,7 +12,7 @@
     %{ endif }
     %{ endif }
     %{ if logs_storage == "loki" }
-    tenant_id = ${loki.tenant_id}
+    tenant_id ${loki.tenant_id}
     %{ endif }
     %{ if loki.basic_auth.enabled }
     http_user = ${loki.basic_auth.username}
@@ -37,7 +37,7 @@
     %{ endif }
     %{ if logs_storage == "loki" }
     %{ if try(loki.tenant_id, null) != null }
-    tenant_id = ${loki.tenant_id}
+    tenant_id ${loki.tenant_id}
     %{ endif }
     %{ endif }
     %{ if loki.basic_auth.enabled }

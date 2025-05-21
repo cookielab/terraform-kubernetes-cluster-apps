@@ -72,6 +72,31 @@ variable "logs_custom" {
   }
 }
 
+variable "tolerations" {
+  type        = list(object({
+    key = string
+    operator = string
+    value = string
+    effect = string
+  }))
+  description = "The tolerations for the Fluent Bit service"
+  default     = []
+}
 
+variable "node_selector" {
+  type        = map(string)
+  description = "The node selector for the Fluent Bit service"
+  default     = {}
+}
 
+variable "labels" {
+  type        = map(string)
+  description = "The labels for the Fluent Bit service"
+  default     = {}
+}
 
+variable "pod_annotations" {
+  type        = map(string)
+  description = "The pod annotations for the Fluent Bit service"
+  default     = {}
+}

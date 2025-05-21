@@ -282,6 +282,15 @@ variable "fluent_bit" {
       inputs  = optional(map(string), {})
     }), {})
     logs_endpoint_url = optional(string, null)
+    tolerations = optional(list(object({
+      key      = string
+      operator = string
+      value    = string
+      effect   = string
+    })), [])
+    node_selector   = optional(map(string), {})
+    labels          = optional(map(string), {})
+    pod_annotations = optional(map(string), {})
   })
   default = {}
 }
