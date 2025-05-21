@@ -166,7 +166,7 @@ module "grafana_alloy_cluster" {
 module "grafana_alloy_loki" {
   count = var.grafana_alloy.loki.enabled ? 1 : 0
 
-  source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
+  source                  = "cookielab/grafana-alloy/kubernetes//modules/loki-logs"
   version                 = "v0.0.3"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
