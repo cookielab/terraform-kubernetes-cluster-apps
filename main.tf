@@ -176,7 +176,7 @@ module "grafana_alloy_loki" {
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
 
-  replicas = var.grafana_alloy.cluster.replicas
+  replicas = var.grafana_alloy.loki.replicas
   metrics = {
     endpoint    = var.grafana_alloy.metrics.endpoint
     tenant      = var.grafana_alloy.metrics.tenant
@@ -191,6 +191,7 @@ module "grafana_alloy_loki" {
     scrape_pods_global     = var.grafana_alloy.loki.scrape_pods_global
     scrape_pods_annotation = var.grafana_alloy.loki.scrape_pods_annotation
   }
+  clustering_enabled = var.grafana_alloy.loki.clustering_enabled
   image = {
     repository = var.grafana_alloy.image.repository
   }

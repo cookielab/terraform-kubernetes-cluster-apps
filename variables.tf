@@ -223,6 +223,8 @@ variable "grafana_alloy" {
       password               = optional(string, "")
       scrape_pods_global     = optional(bool, true)
       scrape_pods_annotation = optional(string, "")
+      clustering_enabled     = optional(bool, false)
+      replicas               = optional(number, 1)
     }), {})
     aws = optional(object({
       account = optional(string, "")
