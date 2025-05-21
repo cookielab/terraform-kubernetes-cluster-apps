@@ -134,7 +134,7 @@ module "grafana_alloy_cluster" {
   count = var.grafana_alloy.cluster.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/cluster"
-  version                 = "0.0.1"
+  version                 = "v0.0.3"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
@@ -163,11 +163,52 @@ module "grafana_alloy_cluster" {
   }
 }
 
+module "grafana_alloy_loki" {
+  count = var.grafana_alloy.loki.enabled ? 1 : 0
+
+  source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
+  version                 = "v0.0.3"
+  kubernetes_cluster_name = var.cluster_name
+  chart_version           = "0.12.5"
+  kubernetes_namespace    = local.namespace
+
+  replicas = var.grafana_alloy.cluster.replicas
+  metrics = {
+    endpoint    = var.grafana_alloy.metrics.endpoint
+    tenant      = var.grafana_alloy.metrics.tenant
+    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+  }
+
+  loki = {
+    tenant_id = var.grafana_alloy.loki.tenant_id
+    url       = var.grafana_alloy.loki.url
+    username  = var.grafana_alloy.loki.username
+    password  = var.grafana_alloy.loki.password
+  }
+  image = {
+    repository = var.grafana_alloy.image.repository
+  }
+
+  aws = var.grafana_alloy.aws
+
+  agent_resources = {
+    requests = {
+      cpu    = var.grafana_alloy.cluster.requests.cpu
+      memory = var.grafana_alloy.cluster.requests.memory
+    }
+    limits = {
+      cpu    = var.grafana_alloy.cluster.limits.cpu
+      memory = var.grafana_alloy.cluster.limits.memory
+    }
+
+  }
+}
+
 module "grafana_alloy_node" {
   count = var.grafana_alloy.node.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
-  version                 = "0.0.1"
+  version                 = "v0.0.3"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace

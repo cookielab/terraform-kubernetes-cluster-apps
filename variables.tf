@@ -189,6 +189,7 @@ variable "grafana_alloy" {
       endpoint    = optional(string, null)
       tenant      = optional(string, null)
       ssl_enabled = optional(bool, false)
+      tenant_id   = optional(string, null)
     }), {})
     cluster = optional(object({
       enabled  = optional(bool, true)
@@ -214,6 +215,17 @@ variable "grafana_alloy" {
         memory = optional(string, "256Mi")
       }), {})
     }), {})
+    loki = optional(object({
+      enabled = optional(bool, false)
+      url = optional(string, null)
+      tenant_id = optional(string, null)
+      username = optional(string, "")
+      password = optional(string, "")
+    }), {})
+    aws = optional(object({
+      account = optional(string, "")
+      region  = optional(string, "")
+    }), {})
   })
   default = {}
 }
@@ -235,10 +247,10 @@ variable "cert_manager" {
 variable "fluent_bit" {
   description = "fluent bit configuration"
   type = object({
-    enabled      = optional(bool, true)
+    enabled      = optional(bool, false)
     logs_storage = optional(string, "loki")
     loki = optional(object({
-      tenant_id         = optional(string, "default")
+      tenant_id         = optional(string, null)
       logs_endpoint_url = optional(string, null)
       basic_auth = optional(object({
         enabled  = optional(bool, false)
