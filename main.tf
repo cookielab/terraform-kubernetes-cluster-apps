@@ -180,10 +180,12 @@ module "grafana_alloy_loki" {
   }
 
   loki = {
-    tenant_id = var.grafana_alloy.loki.tenant_id
-    url       = var.grafana_alloy.loki.url
-    username  = var.grafana_alloy.loki.username
-    password  = var.grafana_alloy.loki.password
+    tenant_id              = var.grafana_alloy.loki.tenant_id
+    url                    = var.grafana_alloy.loki.url
+    username               = var.grafana_alloy.loki.username
+    password               = var.grafana_alloy.loki.password
+    scrape_pods_global     = var.grafana_alloy.loki.scrape_pods_global
+    scrape_pods_annotation = var.grafana_alloy.loki.scrape_pods_annotation
   }
   image = {
     repository = var.grafana_alloy.image.repository

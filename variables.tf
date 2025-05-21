@@ -216,11 +216,13 @@ variable "grafana_alloy" {
       }), {})
     }), {})
     loki = optional(object({
-      enabled = optional(bool, false)
-      url = optional(string, null)
-      tenant_id = optional(string, null)
-      username = optional(string, "")
-      password = optional(string, "")
+      enabled                = optional(bool, false)
+      url                    = optional(string, null)
+      tenant_id              = optional(string, null)
+      username               = optional(string, "")
+      password               = optional(string, "")
+      scrape_pods_global     = optional(bool, true)
+      scrape_pods_annotation = optional(string, "")
     }), {})
     aws = optional(object({
       account = optional(string, "")
