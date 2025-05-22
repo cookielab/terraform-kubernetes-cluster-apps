@@ -224,6 +224,7 @@ variable "grafana_alloy" {
       scrape_pods_global     = optional(bool, true)
       scrape_pods_annotation = optional(string, "")
       clustering_enabled     = optional(bool, false)
+      scrape_logs_method     = optional(string, "api")
       replicas               = optional(number, 1)
     }), {})
     aws = optional(object({
@@ -232,6 +233,10 @@ variable "grafana_alloy" {
     }), {})
   })
   default = {}
+  validation {
+    condition     = contains(["file", "api"], var.grafana_alloy.loki.scrape_logs_method)
+    error_message = "Valid values for loki.scrape_logs_method are \"file\" or \"api\"."
+  }
 }
 
 variable "cert_manager" {

@@ -190,6 +190,7 @@ module "grafana_alloy_loki" {
     password               = var.grafana_alloy.loki.password
     scrape_pods_global     = var.grafana_alloy.loki.scrape_pods_global
     scrape_pods_annotation = var.grafana_alloy.loki.scrape_pods_annotation
+    scrape_logs_method     = var.grafana_alloy.loki.scrape_logs_method
   }
   clustering_enabled = var.grafana_alloy.loki.clustering_enabled
   image = {
