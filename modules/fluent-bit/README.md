@@ -92,12 +92,16 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_elasticsearch"></a> [elasticsearch](#input\_elasticsearch) | n/a | <pre>object({<br/>    auth = optional(object({<br/>      enabled  = optional(bool, false)<br/>      username = optional(string)<br/>      password = optional(string)<br/>    }), {})<br/>  })</pre> | `{}` | no |
+| <a name="input_labels"></a> [labels](#input\_labels) | The labels for the Fluent Bit service | `map(string)` | `{}` | no |
 | <a name="input_logs_custom"></a> [logs\_custom](#input\_logs\_custom) | The custom configurations for logs, including outputs, filters, and inputs | <pre>object({<br/>    outputs = optional(map(string), {})<br/>    filters = optional(map(string), {})<br/>    inputs  = optional(map(string), {})<br/>  })</pre> | <pre>{<br/>  "filters": {},<br/>  "inputs": {},<br/>  "outputs": {}<br/>}</pre> | no |
 | <a name="input_logs_endpoint_url"></a> [logs\_endpoint\_url](#input\_logs\_endpoint\_url) | The URL of the logs endpoint | `string` | n/a | yes |
 | <a name="input_logs_labels"></a> [logs\_labels](#input\_logs\_labels) | The labels for the logs | `map(string)` | `{}` | no |
 | <a name="input_logs_storage"></a> [logs\_storage](#input\_logs\_storage) | The type of logs storage to use | `string` | `"loki"` | no |
 | <a name="input_loki"></a> [loki](#input\_loki) | n/a | <pre>object({<br/>    basic_auth = optional(object({<br/>      enabled  = optional(bool, false)<br/>      username = optional(string)<br/>      password = optional(string)<br/>    }), {})<br/>    bearer_token = optional(object({<br/>      enabled = optional(bool, false)<br/>      token   = optional(string)<br/>    }), {})<br/>    tenant_id = optional(string, "default")<br/>  })</pre> | `{}` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The namespace to deploy the Fluent Bit service to | `string` | `"monitoring"` | no |
+| <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | The node selector for the Fluent Bit service | `map(string)` | `{}` | no |
+| <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | The pod annotations for the Fluent Bit service | `map(string)` | `{}` | no |
+| <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | The tolerations for the Fluent Bit service | <pre>list(object({<br/>    key = string<br/>    operator = string<br/>    value = string<br/>    effect = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_use_defaults"></a> [use\_defaults](#input\_use\_defaults) | Whether to use the default outputs | `map(bool)` | <pre>{<br/>  "filters": true,<br/>  "inputs": true,<br/>  "outputs": true<br/>}</pre> | no |
 
 ## Outputs
