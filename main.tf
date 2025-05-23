@@ -221,7 +221,6 @@ module "grafana_alloy_node" {
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
 
-  aws = var.grafana_alloy.aws
   metrics = {
     endpoint    = var.grafana_alloy.metrics.endpoint
     tenant      = var.grafana_alloy.metrics.tenant
