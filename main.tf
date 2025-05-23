@@ -89,22 +89,157 @@ module "kyverno" {
   admission_controller = var.kyverno.admission_controller
 }
 
-module "alloy" {
-  count = var.alloy.enabled ? 1 : 0
+module "fluent-bit" {
+  count = var.fluent_bit.enabled ? 1 : 0
 
-  source = "./modules/alloy"
+  source = "./modules/fluent-bit"
 
-  namespace                      = local.namespace
-  loki                           = var.alloy.loki
-  loki_scrape_global             = var.alloy.loki_scrape_global
-  loki_collect_self_logs_enabled = var.alloy.loki_collect_self_logs_enabled
-  prometheus                     = var.alloy.prometheus
-  tenant_id                      = var.alloy.tenant_id
-  node_template_file_path        = var.alloy.node_template_file_path
-  cluster_template_file_path     = var.alloy.cluster_template_file_path
+  namespace       = local.namespace
+  logs_storage    = var.fluent_bit.logs_storage
+  tolerations     = var.fluent_bit.tolerations
+  node_selector   = var.fluent_bit.node_selector
+  labels          = var.fluent_bit.labels
+  pod_annotations = var.fluent_bit.pod_annotations
+  loki = {
+    tenant_id = var.fluent_bit.loki.tenant_id
+    basic_auth = {
+      enabled  = var.fluent_bit.loki.basic_auth.enabled
+      username = var.fluent_bit.loki.basic_auth.username
+      password = var.fluent_bit.loki.basic_auth.password
+    }
+    bearer_token = {
+      enabled = var.fluent_bit.loki.bearer_token.enabled
+      token   = var.fluent_bit.loki.bearer_token.token
+    }
+  }
+  elasticsearch = {
+    auth = {
+      enabled  = var.fluent_bit.elasticsearch.auth.enabled
+      username = var.fluent_bit.elasticsearch.auth.username
+      password = var.fluent_bit.elasticsearch.auth.password
+    }
+  }
+  use_defaults = {
+    outputs = var.fluent_bit.use_defaults.outputs
+    filters = var.fluent_bit.use_defaults.filters
+    inputs  = var.fluent_bit.use_defaults.inputs
+  }
+  logs_custom = {
+    outputs = var.fluent_bit.logs_custom.outputs
+    filters = var.fluent_bit.logs_custom.filters
+    inputs  = var.fluent_bit.logs_custom.inputs
+  }
+  logs_endpoint_url = var.fluent_bit.logs_endpoint_url
 
-  cluster_name = var.cluster_name
-  project      = var.project
+
+}
+
+module "grafana_alloy_cluster" {
+  count = var.grafana_alloy.cluster.enabled ? 1 : 0
+
+  source                  = "cookielab/grafana-alloy/kubernetes//modules/cluster"
+  version                 = "v0.0.4"
+  kubernetes_cluster_name = var.cluster_name
+  chart_version           = "0.12.5"
+  kubernetes_namespace    = local.namespace
+
+  replicas = var.grafana_alloy.cluster.replicas
+  metrics = {
+    endpoint    = var.grafana_alloy.metrics.endpoint
+    tenant      = var.grafana_alloy.metrics.tenant
+    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+  }
+  image = {
+    repository = var.grafana_alloy.image.repository
+  }
+
+
+  agent_resources = {
+    requests = {
+      cpu    = var.grafana_alloy.cluster.requests.cpu
+      memory = var.grafana_alloy.cluster.requests.memory
+    }
+    limits = {
+      cpu    = var.grafana_alloy.cluster.limits.cpu
+      memory = var.grafana_alloy.cluster.limits.memory
+    }
+
+  }
+}
+
+module "grafana_alloy_loki" {
+  count = var.grafana_alloy.loki.enabled ? 1 : 0
+
+  source                  = "cookielab/grafana-alloy/kubernetes//modules/loki-logs"
+  version                 = "v0.0.4"
+  kubernetes_cluster_name = var.cluster_name
+  chart_version           = "0.12.5"
+  kubernetes_namespace    = local.namespace
+
+  replicas = var.grafana_alloy.loki.replicas
+  metrics = {
+    endpoint    = var.grafana_alloy.metrics.endpoint
+    tenant      = var.grafana_alloy.metrics.tenant
+    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+  }
+
+  loki = {
+    tenant_id              = var.grafana_alloy.loki.tenant_id
+    url                    = var.grafana_alloy.loki.url
+    username               = var.grafana_alloy.loki.username
+    password               = var.grafana_alloy.loki.password
+    scrape_pods_global     = var.grafana_alloy.loki.scrape_pods_global
+    scrape_pods_annotation = var.grafana_alloy.loki.scrape_pods_annotation
+    scrape_logs_method     = var.grafana_alloy.loki.scrape_logs_method
+  }
+  clustering_enabled = var.grafana_alloy.loki.clustering_enabled
+  image = {
+    repository = var.grafana_alloy.image.repository
+  }
+
+  aws = var.grafana_alloy.aws
+
+  agent_resources = {
+    requests = {
+      cpu    = var.grafana_alloy.cluster.requests.cpu
+      memory = var.grafana_alloy.cluster.requests.memory
+    }
+    limits = {
+      cpu    = var.grafana_alloy.cluster.limits.cpu
+      memory = var.grafana_alloy.cluster.limits.memory
+    }
+
+  }
+}
+
+module "grafana_alloy_node" {
+  count = var.grafana_alloy.node.enabled ? 1 : 0
+
+  source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
+  version                 = "v0.0.4"
+  kubernetes_cluster_name = var.cluster_name
+  chart_version           = "0.12.5"
+  kubernetes_namespace    = local.namespace
+
+  metrics = {
+    endpoint    = var.grafana_alloy.metrics.endpoint
+    tenant      = var.grafana_alloy.metrics.tenant
+    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+  }
+  image = {
+    repository = var.grafana_alloy.image.repository
+  }
+  agent_resources = {
+    requests = {
+      cpu    = var.grafana_alloy.node.requests.cpu
+      memory = var.grafana_alloy.node.requests.memory
+    }
+    limits = {
+      cpu    = var.grafana_alloy.node.limits.cpu
+      memory = var.grafana_alloy.node.limits.memory
+    }
+  }
+
 }
 
 module "cert_manager" {

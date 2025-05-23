@@ -15,11 +15,6 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "project" {
-  default = "project name"
-  type    = string
-}
-
 variable "node_selector" {
   description = "node selector to deploy cluster apps"
   type        = map(string)
@@ -184,40 +179,64 @@ variable "kyverno" {
   default = {}
 }
 
-variable "alloy" {
+variable "grafana_alloy" {
   description = "grafana alloy configuration"
   type = object({
-    enabled = optional(bool, true)
-    loki = optional(
-      object({
-        url      = string
-        username = optional(string, null)
-        password = optional(string, null)
-      }),
-      {
-        url      = null
-        username = null
-        password = null
-      }
-    )
-    loki_scrape_global             = optional(bool, true)
-    loki_collect_self_logs_enabled = optional(bool, false)
-    prometheus = optional(
-      object({
-        url      = string
-        username = optional(string, null)
-        password = optional(string, null)
-      }),
-      {
-        url      = null
-        username = null
-        password = null
-      }
-    )
-    tenant_id                  = optional(string, "default")
-    node_template_file_path    = optional(string, null)
-    cluster_template_file_path = optional(string, null)
+    image = optional(object({
+      repository = optional(string, "grafana/alloy")
+    }), {})
+    metrics = optional(object({
+      endpoint    = optional(string, null)
+      tenant      = optional(string, null)
+      ssl_enabled = optional(bool, false)
+      tenant_id   = optional(string, null)
+    }), {})
+    cluster = optional(object({
+      enabled  = optional(bool, true)
+      replicas = optional(number, 3)
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
+      }), {})
+
+    }), {})
+    node = optional(object({
+      enabled = optional(bool, true)
+      requests = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "128Mi")
+      }), {})
+      limits = optional(object({
+        cpu    = optional(string, "100m")
+        memory = optional(string, "256Mi")
+      }), {})
+    }), {})
+    loki = optional(object({
+      enabled                = optional(bool, false)
+      url                    = optional(string, null)
+      tenant_id              = optional(string, "default")
+      username               = optional(string, "")
+      password               = optional(string, "")
+      scrape_pods_global     = optional(bool, true)
+      scrape_pods_annotation = optional(string, "")
+      clustering_enabled     = optional(bool, false)
+      scrape_logs_method     = optional(string, "api")
+      replicas               = optional(number, 1)
+    }), {})
+    aws = optional(object({
+      account = optional(string, "")
+      region  = optional(string, "")
+    }), {})
   })
+  default = {}
+  validation {
+    condition     = contains(["file", "api"], var.grafana_alloy.loki.scrape_logs_method)
+    error_message = "Valid values for loki.scrape_logs_method are \"file\" or \"api\"."
+  }
 }
 
 variable "cert_manager" {
@@ -232,4 +251,53 @@ variable "cert_manager" {
       effect   = optional(string, null)
     })), null)
   })
+}
+
+variable "fluent_bit" {
+  description = "fluent bit configuration"
+  type = object({
+    enabled      = optional(bool, false)
+    logs_storage = optional(string, "loki")
+    loki = optional(object({
+      tenant_id         = optional(string, null)
+      logs_endpoint_url = optional(string, null)
+      basic_auth = optional(object({
+        enabled  = optional(bool, false)
+        username = optional(string, null)
+        password = optional(string, null)
+      }), {})
+      bearer_token = optional(object({
+        enabled = optional(bool, false)
+        token   = optional(string, null)
+      }), {})
+    }), {})
+    elasticsearch = optional(object({
+      auth = optional(object({
+        enabled  = optional(bool, false)
+        username = optional(string, null)
+        password = optional(string, null)
+      }), {})
+    }), {})
+    use_defaults = optional(object({
+      outputs = optional(bool, true)
+      filters = optional(bool, true)
+      inputs  = optional(bool, true)
+    }), {})
+    logs_custom = optional(object({
+      outputs = optional(map(string), {})
+      filters = optional(map(string), {})
+      inputs  = optional(map(string), {})
+    }), {})
+    logs_endpoint_url = optional(string, null)
+    tolerations = optional(list(object({
+      key      = string
+      operator = string
+      value    = string
+      effect   = string
+    })), [])
+    node_selector   = optional(map(string), {})
+    labels          = optional(map(string), {})
+    pod_annotations = optional(map(string), {})
+  })
+  default = {}
 }

@@ -1,0 +1,14 @@
+%{if use_defaults.filters}
+[FILTER]
+    Name kubernetes
+    Match kube.*
+    Merge_Log On
+    Keep_Log Off
+    K8S-Logging.Parser On
+    K8S-Logging.Exclude On
+%{ endif }
+
+%{ for key, filter in logs_custom }
+[FILTER]
+    ${ filter }
+%{ endfor }
