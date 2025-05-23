@@ -144,6 +144,7 @@ module "grafana_alloy_cluster" {
   kubernetes_namespace    = local.namespace
 
   replicas = var.grafana_alloy.cluster.replicas
+  aws      = var.grafana_alloy.aws
   metrics = {
     endpoint    = var.grafana_alloy.metrics.endpoint
     tenant      = var.grafana_alloy.metrics.tenant
@@ -220,6 +221,8 @@ module "grafana_alloy_node" {
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
+
+  aws = var.grafana_alloy.aws
   metrics = {
     endpoint    = var.grafana_alloy.metrics.endpoint
     tenant      = var.grafana_alloy.metrics.tenant
