@@ -138,13 +138,12 @@ module "grafana_alloy_cluster" {
   count = var.grafana_alloy.cluster.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/cluster"
-  version                 = "v0.0.3"
+  version                 = "v0.0.4"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
 
   replicas = var.grafana_alloy.cluster.replicas
-  aws      = var.grafana_alloy.aws
   metrics = {
     endpoint    = var.grafana_alloy.metrics.endpoint
     tenant      = var.grafana_alloy.metrics.tenant
@@ -172,7 +171,7 @@ module "grafana_alloy_loki" {
   count = var.grafana_alloy.loki.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/loki-logs"
-  version                 = "v0.0.3"
+  version                 = "v0.0.4"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
@@ -217,7 +216,7 @@ module "grafana_alloy_node" {
   count = var.grafana_alloy.node.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
-  version                 = "v0.0.3"
+  version                 = "v0.0.4"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
