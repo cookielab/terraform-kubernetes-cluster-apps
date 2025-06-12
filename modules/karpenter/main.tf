@@ -62,7 +62,7 @@ moved {
 
 module "irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.55.0"
+  version = "5.58.0"
 
   role_name_prefix = "karpenter-${data.aws_eks_cluster.this.name}"
   role_description = "IRSA role for karpenter"
