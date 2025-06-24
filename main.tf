@@ -251,3 +251,60 @@ module "cert_manager" {
   node_selector = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
   tolerations   = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
 }
+
+module "vpa" {
+  count = var.vpa.enabled ? 1 : 0
+
+  source = "./modules/vpa"
+
+  namespace    = local.namespace
+  release_name = var.vpa.release_name
+  crds = {
+    enabled = var.vpa.crds.enabled
+  }
+  recommender = {
+    enabled                 = var.vpa.recommender.enabled
+    replica_count           = var.vpa.recommender.replica_count
+    service_account_enabled = var.vpa.recommender.service_account_enabled
+    resources = {
+      limits = {
+        cpu    = var.vpa.recommender.resources.limits.cpu
+        memory = var.vpa.recommender.resources.limits.memory
+      }
+      requests = {
+        cpu    = var.vpa.recommender.resources.requests.cpu
+        memory = var.vpa.recommender.resources.requests.memory
+      }
+    }
+  }
+  updater = {
+    enabled                 = var.vpa.updater.enabled
+    replica_count           = var.vpa.updater.replica_count
+    service_account_enabled = var.vpa.updater.service_account_enabled
+    resources = {
+      limits = {
+        cpu    = var.vpa.updater.resources.limits.cpu
+        memory = var.vpa.updater.resources.limits.memory
+      }
+      requests = {
+        cpu    = var.vpa.updater.resources.requests.cpu
+        memory = var.vpa.updater.resources.requests.memory
+      }
+    }
+  }
+  admissionController = {
+    enabled                 = var.vpa.admissionController.enabled
+    replica_count           = var.vpa.admissionController.replica_count
+    service_account_enabled = var.vpa.admissionController.service_account_enabled
+    resources = {
+      limits = {
+        cpu    = var.vpa.admissionController.resources.limits.cpu
+        memory = var.vpa.admissionController.resources.limits.memory
+      }
+      requests = {
+        cpu    = var.vpa.admissionController.resources.requests.cpu
+        memory = var.vpa.admissionController.resources.requests.memory
+      }
+    }
+  }
+}

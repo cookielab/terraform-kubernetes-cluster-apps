@@ -4,14 +4,14 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9, < 2.0 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.14 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.30 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.14 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 3.0 |
 
 ## Modules
 
