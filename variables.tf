@@ -301,3 +301,60 @@ variable "fluent_bit" {
   })
   default = {}
 }
+
+variable "vpa" {
+  description = "vpa configuration"
+  type = object({
+    enabled      = optional(bool, false)
+    release_name = optional(string, "vpa")
+    crds = optional(object({
+      enabled = optional(bool, true)
+    }), {})
+    recommender = optional(object({
+      enabled                 = optional(bool, true)
+      replica_count           = optional(number, 1)
+      service_account_enabled = optional(bool, true)
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "200m")
+          memory = optional(string, "200Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "50m")
+          memory = optional(string, "50Mi")
+        }), {})
+      }), {})
+    }), {})
+    updater = optional(object({
+      enabled                 = optional(bool, true)
+      replica_count           = optional(number, 1)
+      service_account_enabled = optional(bool, true)
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "200m")
+          memory = optional(string, "200Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "50m")
+          memory = optional(string, "50Mi")
+        }), {})
+      }), {})
+    }), {})
+    admissionController = optional(object({
+      enabled                 = optional(bool, true)
+      replica_count           = optional(number, 1)
+      service_account_enabled = optional(bool, true)
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "200m")
+          memory = optional(string, "200Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "50m")
+          memory = optional(string, "50Mi")
+        }), {})
+      }), {})
+    }), {})
+  })
+  default = {}
+}

@@ -44,6 +44,10 @@ module "cluster_apps" {
     enabled = false
   }
 
+  vpa = {
+    enabled = false
+  }
+
   metrics_server = {
     enabled = true
     node_selector = {
@@ -69,7 +73,7 @@ module "cluster_apps" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.14 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.30 |
 
 ## Providers
@@ -92,6 +96,7 @@ module "cluster_apps" {
 | <a name="module_keda"></a> [keda](#module\_keda) | ./modules/keda | n/a |
 | <a name="module_kyverno"></a> [kyverno](#module\_kyverno) | ./modules/kyverno | n/a |
 | <a name="module_metrics_server"></a> [metrics\_server](#module\_metrics\_server) | ./modules/metrics-server | n/a |
+| <a name="module_vpa"></a> [vpa](#module\_vpa) | ./modules/vpa | n/a |
 
 ## Resources
 
@@ -115,6 +120,7 @@ module "cluster_apps" {
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | value of the namespace to deploy cluster apps | <pre>object({<br/>    name   = string<br/>    create = bool<br/>  })</pre> | <pre>{<br/>  "create": true,<br/>  "name": "cluster-apps"<br/>}</pre> | no |
 | <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | node selector to deploy cluster apps | `map(string)` | <pre>{<br/>  "node.kubernetes.io/pool": "critical"<br/>}</pre> | no |
 | <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | tolerations to deploy cluster apps | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    value    = optional(string, null)<br/>    effect   = optional(string, null)<br/>  }))</pre> | <pre>[<br/>  {<br/>    "effect": "NoSchedule",<br/>    "key": "CriticalAddonsOnly",<br/>    "operator": "Exists"<br/>  }<br/>]</pre> | no |
+| <a name="input_vpa"></a> [vpa](#input\_vpa) | vpa configuration | <pre>object({<br/>    enabled      = optional(bool, false)<br/>    release_name = optional(string, "vpa")<br/>    crds = optional(object({<br/>      enabled = optional(bool, true)<br/>    }), {})<br/>    recommender = optional(object({<br/>      enabled                 = optional(bool, true)<br/>      replica_count           = optional(number, 1)<br/>      service_account_enabled = optional(bool, true)<br/>      resources = optional(object({<br/>        limits = optional(object({<br/>          cpu    = optional(string, "200m")<br/>          memory = optional(string, "200Mi")<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string, "50m")<br/>          memory = optional(string, "50Mi")<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>    updater = optional(object({<br/>      enabled                 = optional(bool, true)<br/>      replica_count           = optional(number, 1)<br/>      service_account_enabled = optional(bool, true)<br/>      resources = optional(object({<br/>        limits = optional(object({<br/>          cpu    = optional(string, "200m")<br/>          memory = optional(string, "200Mi")<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string, "50m")<br/>          memory = optional(string, "50Mi")<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>    admissionController = optional(object({<br/>      enabled                 = optional(bool, true)<br/>      replica_count           = optional(number, 1)<br/>      service_account_enabled = optional(bool, true)<br/>      resources = optional(object({<br/>        limits = optional(object({<br/>          cpu    = optional(string, "200m")<br/>          memory = optional(string, "200Mi")<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string, "50m")<br/>          memory = optional(string, "50Mi")<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 
