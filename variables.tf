@@ -119,6 +119,8 @@ variable "external_secrets" {
 variable "kyverno" {
   description = "kyverno configuration"
   type = object({
+    namespace           = optional(string, "kyverno")
+    create_namespace    = optional(bool, true)
     enabled             = optional(bool, false)
     registry            = optional(string, "ghcr.io")
     docker_hub_registry = optional(string, "docker.io")

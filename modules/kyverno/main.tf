@@ -28,3 +28,13 @@ resource "helm_release" "this" {
     admissionController = var.admission_controller
   })]
 }
+
+resource "kubernetes_namespace_v1" "kyverno" {
+  count = var.create_namespace ? 1 : 0
+  metadata {
+    name = var.namespace
+    labels = {
+      name = var.namespace
+    }
+  }
+}

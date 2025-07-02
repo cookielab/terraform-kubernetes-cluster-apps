@@ -1,7 +1,7 @@
 variable "namespace" {
   description = "value of the namespace to deploy the kyverno"
   type        = string
-  default     = "cluster-apps"
+  default     = "kyverno"
 }
 
 variable "registry" {
@@ -81,4 +81,10 @@ variable "admission_controller" {
       }
     }
   }
+}
+
+variable "create_namespace" {
+  description = "create kyvernonamespace"
+  type        = bool
+  default     = true
 }
