@@ -84,7 +84,7 @@ variable "admission_controller" {
 }
 
 variable "create_namespace" {
-  description = "create kyvernonamespace"
+  description = "create namespace for kyverno"
   type        = bool
   default     = true
 }

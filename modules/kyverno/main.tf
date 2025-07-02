@@ -29,7 +29,7 @@ resource "helm_release" "this" {
   })]
 }
 
-resource "kubernetes_namespace_v1" "kyverno" {
+resource "kubernetes_namespace_v1" "this" {
   count = var.create_namespace ? 1 : 0
   metadata {
     name = var.namespace
