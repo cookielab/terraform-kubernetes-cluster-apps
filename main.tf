@@ -81,7 +81,8 @@ module "kyverno" {
 
   source = "./modules/kyverno"
 
-  namespace            = local.namespace
+  namespace            = var.kyverno.namespace
+  create_namespace     = var.kyverno.create_namespace
   registry             = var.kyverno.registry
   docker_hub_registry  = var.kyverno.docker_hub_registry
   node_selector        = var.kyverno.node_selector != null ? var.kyverno.node_selector : var.node_selector
