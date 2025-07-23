@@ -4,7 +4,7 @@ resource "helm_release" "this" {
 
   repository = "https://kubernetes-sigs.github.io/metrics-server/"
   chart      = "metrics-server"
-  version    = "3.12.2"
+  version    = "3.13.0"
 
   values = [yamlencode({
     image = {
