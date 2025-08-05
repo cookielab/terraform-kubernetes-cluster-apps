@@ -4,7 +4,7 @@ resource "helm_release" "this" {
 
   repository = "https://kyverno.github.io/kyverno/"
   chart      = "kyverno"
-  version    = "3.4.4"
+  version    = "3.5.0"
 
   values = [yamlencode({
     # https://github.com/kyverno/kyverno/pull/11482/checks?check_run_id=32231441646
