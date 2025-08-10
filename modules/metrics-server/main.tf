@@ -6,11 +6,11 @@ resource "helm_release" "this" {
   chart      = "metrics-server"
   version    = "3.13.0"
 
-  values = [yamlencode({
+  values = [yamlencode(merge({
     image = {
       repository = var.repository
     }
     nodeSelector = var.node_selector
     tolerations  = var.tolerations
-  })]
+  }, length(var.resources) > 0 ? { resources = var.resources } : {}))]
 }

@@ -49,13 +49,13 @@ data "aws_iam_policy_document" "iam_pass_role" {
 }
 
 resource "aws_iam_policy" "iam_pass_role" {
-  count  = var.node_role_arn != null ? 1 : 0
+  count = var.node_role_arn != null ? 1 : 0
 
   name   = "${data.aws_eks_cluster.this.name}-karpenter-node"
   policy = data.aws_iam_policy_document.iam_pass_role[0].json
 }
 
-moved { 
+moved {
   from = aws_iam_policy.iam_pass_role
   to   = aws_iam_policy.iam_pass_role[0]
 }
@@ -68,7 +68,7 @@ module "irsa" {
   role_description = "IRSA role for karpenter"
 
   role_policy_arns = var.node_role_arn == null ? {} : {
-    policy = aws_iam_policy.iam_pass_role[0].arn 
+    policy = aws_iam_policy.iam_pass_role[0].arn
   }
 
   attach_karpenter_controller_policy         = true
@@ -107,14 +107,14 @@ resource "helm_release" "this" {
       }
     }
 
-    controller = {
+    controller = merge({
       image = {
         repository = var.repository
       }
       metrics = {
         port = local.karpenter_metrics_port
       }
-    }
+    }, length(var.resources) > 0 ? { resources = var.resources } : {})
 
     settings = {
       clusterName       = data.aws_eks_cluster.this.name

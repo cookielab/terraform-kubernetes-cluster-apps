@@ -6,7 +6,7 @@ resource "helm_release" "external_secrets_operator" {
   chart      = "external-secrets"
   version    = "0.18.2"
 
-  values = [yamlencode({
+  values = [yamlencode(merge({
     image = {
       repository = var.repository
     }
@@ -14,5 +14,5 @@ resource "helm_release" "external_secrets_operator" {
       nodeSelector = var.node_selector
       tolerations  = var.tolerations
     }
-  })]
+  }, length(var.resources) > 0 ? { resources = var.resources } : {}))]
 }

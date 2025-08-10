@@ -85,3 +85,18 @@ variable "node_role_arn" {
   type        = string
   default     = null
 }
+
+variable "resources" {
+  description = "container resources for Karpenter controller"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}

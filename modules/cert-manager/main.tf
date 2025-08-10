@@ -29,8 +29,10 @@ resource "helm_release" "cert_manager" {
   atomic = true
   wait   = true
 
-  values = [yamlencode({
+  values = [yamlencode(merge({
     nodeSelector = var.node_selector
     tolerations  = var.tolerations
-  })]
+    }, length(var.cert_manager_resources) > 0 ? { resources = var.cert_manager_resources } : {},
+    length(var.cainjector_resources) > 0 ? { cainjector = { resources = var.cainjector_resources } } : {},
+  length(var.webhook_resources) > 0 ? { webhook = { resources = var.webhook_resources } } : {}))]
 }
