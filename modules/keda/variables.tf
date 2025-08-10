@@ -80,6 +80,16 @@ variable "resources" {
         memory = optional(string)
       }), {})
     }), {})
+    admission_webhooks = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
   })
   default = {}
 }

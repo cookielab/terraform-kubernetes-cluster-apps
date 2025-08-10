@@ -21,6 +21,15 @@ resource "helm_release" "keda" {
           annotations = merge(var.role_arn != null ? { "eks.amazonaws.com/role-arn" = var.role_arn } : {}, {})
         }
       }
-    }, length(var.resources.operator) > 0 ? { resources = var.resources.operator } : {}))
+      },
+      (length(var.resources.operator) > 0 || length(var.resources.admission_webhooks) > 0)
+      ? {
+        resources = merge(
+          {},
+          length(var.resources.operator) > 0 ? { operator = var.resources.operator } : {},
+          length(var.resources.admission_webhooks) > 0 ? { webhooks = var.resources.admission_webhooks } : {}
+        )
+      } : {}
+    ))
   ]
 }
