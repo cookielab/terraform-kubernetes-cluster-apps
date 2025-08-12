@@ -70,7 +70,7 @@ variable "resources" {
         memory = optional(string)
       }), {})
     }), {})
-    metrics_server = optional(object({
+    metricServer = optional(object({
       limits = optional(object({
         cpu    = optional(string)
         memory = optional(string)
@@ -80,7 +80,7 @@ variable "resources" {
         memory = optional(string)
       }), {})
     }), {})
-    admission_webhooks = optional(object({
+    webhooks = optional(object({
       limits = optional(object({
         cpu    = optional(string)
         memory = optional(string)

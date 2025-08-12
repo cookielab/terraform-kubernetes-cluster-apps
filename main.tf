@@ -256,9 +256,9 @@ module "cert_manager" {
   namespace              = local.namespace
   node_selector          = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
   tolerations            = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
-  cert_manager_resources = try(var.cert_manager.resources.cert_manager, {})
-  cainjector_resources   = try(var.cert_manager.resources.cainjector, {})
-  webhook_resources      = try(var.cert_manager.resources.webhook, {})
+  cert_manager_resources = var.cert_manager.resources.cert_manager
+  cainjector_resources   = var.cert_manager.resources.cainjector
+  webhook_resources      = var.cert_manager.resources.webhook
 }
 
 module "vpa" {

@@ -127,7 +127,17 @@ variable "keda" {
           memory = optional(string)
         }), {})
       }), {})
-      metrics_server = optional(object({
+      metricServer = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+      webhooks = optional(object({
         limits = optional(object({
           cpu    = optional(string)
           memory = optional(string)

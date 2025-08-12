@@ -11,7 +11,7 @@ resource "helm_release" "keda" {
       logLevel = var.log_level
       metricsServer = merge(
         { enabled = var.metrics_server },
-        length(var.resources.metrics_server) > 0 ? { resources = var.resources.metrics_server } : {}
+        length(var.resources.metricServer) > 0 ? { resources = var.resources.metricServer } : {}
       )
       nodeSelector   = var.node_selector
       tolerations    = var.tolerations
@@ -22,12 +22,12 @@ resource "helm_release" "keda" {
         }
       }
       },
-      (length(var.resources.operator) > 0 || length(var.resources.admission_webhooks) > 0)
+      (length(var.resources.operator) > 0 || length(var.resources.webhooks) > 0)
       ? {
         resources = merge(
           {},
           length(var.resources.operator) > 0 ? { operator = var.resources.operator } : {},
-          length(var.resources.admission_webhooks) > 0 ? { webhooks = var.resources.admission_webhooks } : {}
+          length(var.resources.webhooks) > 0 ? { webhooks = var.resources.webhooks } : {}
         )
       } : {}
     ))
