@@ -126,8 +126,8 @@ variable "keda" {
           cpu    = optional(string, "100m")
           memory = optional(string, "100Mi")
         }), {})
-      }), {
-        limits = { cpu = "1", memory = "1000Mi" }
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       })
       metricServer = optional(object({
@@ -139,8 +139,8 @@ variable "keda" {
           cpu    = optional(string, "100m")
           memory = optional(string, "100Mi")
         }), {})
-      }), {
-        limits = { cpu = "1", memory = "1000Mi" }
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       })
       webhooks = optional(object({
@@ -152,21 +152,21 @@ variable "keda" {
           cpu    = optional(string, "100m")
           memory = optional(string, "100Mi")
         }), {})
-      }), {
-        limits = { cpu = "1", memory = "1000Mi" }
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       })
-    }), {
+      }), {
       operator = {
-        limits = { cpu = "1", memory = "1000Mi" }
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       }
       metricServer = {
-        limits = { cpu = "1", memory = "1000Mi" }
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       }
       webhooks = {
-        limits = { cpu = "1", memory = "1000Mi" }
+        limits   = { cpu = "1", memory = "1000Mi" }
         requests = { cpu = "100m", memory = "100Mi" }
       }
     })
