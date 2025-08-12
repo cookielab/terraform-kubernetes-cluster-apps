@@ -50,6 +50,16 @@ variable "metrics_server" {
       value    = optional(string, null)
       effect   = optional(string, null)
     })), null)
+    resources = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
   })
   default = {}
 }
@@ -74,6 +84,16 @@ variable "karpenter" {
     spot_to_spot_consolidation = optional(bool, false)
     pod_annotations            = optional(map(string), {})
     node_role_arn              = optional(string, null)
+    resources = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
   })
   default = {}
 }
@@ -96,6 +116,60 @@ variable "keda" {
       effect   = optional(string, null)
     })), [])
     pod_annotations = optional(map(string), {})
+    resources = optional(object({
+      operator = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "1")
+          memory = optional(string, "1000Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "100Mi")
+        }), {})
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      })
+      metricServer = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "1")
+          memory = optional(string, "1000Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "100Mi")
+        }), {})
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      })
+      webhooks = optional(object({
+        limits = optional(object({
+          cpu    = optional(string, "1")
+          memory = optional(string, "1000Mi")
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "100Mi")
+        }), {})
+        }), {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      })
+      }), {
+      operator = {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      }
+      metricServer = {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      }
+      webhooks = {
+        limits   = { cpu = "1", memory = "1000Mi" }
+        requests = { cpu = "100m", memory = "100Mi" }
+      }
+    })
   })
   default = {}
 }
@@ -112,6 +186,40 @@ variable "external_secrets" {
       value    = optional(string, null)
       effect   = optional(string, null)
     })), null)
+    resources = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+    webhook = optional(object({
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+    }), {})
+    certController = optional(object({
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+    }), {})
   })
   default = {}
 }
@@ -252,6 +360,38 @@ variable "cert_manager" {
       value    = optional(string, null)
       effect   = optional(string, null)
     })), null)
+    resources = optional(object({
+      cert_manager = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+      cainjector = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+      webhook = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+    }), {})
   })
 }
 
@@ -300,6 +440,16 @@ variable "fluent_bit" {
     node_selector   = optional(map(string), {})
     labels          = optional(map(string), {})
     pod_annotations = optional(map(string), {})
+    resources = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
   })
   default = {}
 }

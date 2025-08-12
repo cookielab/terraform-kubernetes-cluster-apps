@@ -56,3 +56,40 @@ variable "role_arn" {
   type        = string
   nullable    = true
 }
+
+variable "resources" {
+  description = "container resources for Keda components"
+  type = object({
+    operator = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+    metricServer = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+    webhooks = optional(object({
+      limits = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+      requests = optional(object({
+        cpu    = optional(string)
+        memory = optional(string)
+      }), {})
+    }), {})
+  })
+  default = {}
+}

@@ -7,17 +7,25 @@ resource "helm_release" "keda" {
 
   values = [
     yamlencode({
-      replicas       = var.replicas
-      logLevel       = var.log_level
-      metricsServer  = { enabled = var.metrics_server }
+      replicas = var.replicas
+      logLevel = var.log_level
+      metricsServer = {
+        enabled = var.metrics_server
+      }
       nodeSelector   = var.node_selector
       tolerations    = var.tolerations
       podAnnotations = var.pod_annotations
       serviceAccount = {
         operator = {
-          annotations = merge(var.role_arn != null ? { "eks.amazonaws.com/role-arn" = var.role_arn } : {}, {})
+          annotations = var.role_arn != null ? { "eks.amazonaws.com/role-arn" = var.role_arn } : {}
         }
+      }
+      resources = {
+        operator     = var.resources.operator
+        metricServer = var.resources.metricServer
+        webhooks     = var.resources.webhooks
       }
     })
   ]
 }
+

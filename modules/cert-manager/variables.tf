@@ -22,3 +22,48 @@ variable "tolerations" {
   }))
   default = []
 }
+
+variable "cert_manager_resources" {
+  description = "container resources for the cert-manager controller"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
+
+variable "cainjector_resources" {
+  description = "container resources for the cert-manager cainjector"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
+
+variable "webhook_resources" {
+  description = "container resources for the cert-manager webhook"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}

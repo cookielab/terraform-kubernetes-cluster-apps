@@ -73,11 +73,11 @@ variable "logs_custom" {
 }
 
 variable "tolerations" {
-  type        = list(object({
-    key = string
+  type = list(object({
+    key      = string
     operator = string
-    value = string
-    effect = string
+    value    = string
+    effect   = string
   }))
   description = "The tolerations for the Fluent Bit service"
   default     = []
@@ -98,5 +98,20 @@ variable "labels" {
 variable "pod_annotations" {
   type        = map(string)
   description = "The pod annotations for the Fluent Bit service"
+  default     = {}
+}
+
+variable "resources" {
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  description = "Container resources for the Fluent Bit DaemonSet"
   default     = {}
 }

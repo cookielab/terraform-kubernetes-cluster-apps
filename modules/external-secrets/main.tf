@@ -14,5 +14,12 @@ resource "helm_release" "external_secrets_operator" {
       nodeSelector = var.node_selector
       tolerations  = var.tolerations
     }
+    resources = var.resources
+    webhook = {
+      resources = var.webhook_resources
+    }
+    certController = {
+      resources = var.cert_controller_resources
+    }
   })]
 }

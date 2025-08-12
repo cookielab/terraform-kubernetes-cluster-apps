@@ -12,5 +12,6 @@ resource "helm_release" "this" {
     }
     nodeSelector = var.node_selector
     tolerations  = var.tolerations
+    resources    = var.resources
   })]
 }

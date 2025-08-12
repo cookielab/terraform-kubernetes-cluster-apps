@@ -32,5 +32,8 @@ resource "helm_release" "cert_manager" {
   values = [yamlencode({
     nodeSelector = var.node_selector
     tolerations  = var.tolerations
+    resources    = var.cert_manager_resources
+    cainjector   = { resources = var.cainjector_resources }
+    webhook      = { resources = var.webhook_resources }
   })]
 }
