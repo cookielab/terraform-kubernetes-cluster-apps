@@ -6,7 +6,7 @@ resource "helm_release" "external_secrets_operator" {
   chart      = "external-secrets"
   version    = "0.18.2"
 
-  values = [yamlencode(merge({
+  values = [yamlencode({
     image = {
       repository = var.repository
     }
@@ -14,5 +14,12 @@ resource "helm_release" "external_secrets_operator" {
       nodeSelector = var.node_selector
       tolerations  = var.tolerations
     }
-  }, length(var.resources) > 0 ? { resources = var.resources } : {}))]
+    resources = var.resources
+    webhook = {
+      resources = var.webhook_resources
+    }
+    certController = {
+      resources = var.cert_controller_resources
+    }
+  })]
 }

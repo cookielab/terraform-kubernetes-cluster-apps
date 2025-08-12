@@ -46,3 +46,33 @@ variable "resources" {
   })
   default = {}
 }
+
+variable "webhook_resources" {
+  description = "container resources for the External Secrets webhook"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
+
+variable "cert_controller_resources" {
+  description = "container resources for the External Secrets certController"
+  type = object({
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}

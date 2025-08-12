@@ -174,6 +174,30 @@ variable "external_secrets" {
         memory = optional(string)
       }), {})
     }), {})
+    webhook = optional(object({
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+    }), {})
+    certController = optional(object({
+      resources = optional(object({
+        limits = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+        requests = optional(object({
+          cpu    = optional(string)
+          memory = optional(string)
+        }), {})
+      }), {})
+    }), {})
   })
   default = {}
 }

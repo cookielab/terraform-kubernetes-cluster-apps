@@ -77,7 +77,9 @@ module "external_secrets" {
   repository    = var.external_secrets.repository
   node_selector = var.external_secrets.node_selector != null ? var.external_secrets.node_selector : var.node_selector
   tolerations   = var.external_secrets.tolerations != null ? var.external_secrets.tolerations : var.tolerations
-  resources     = var.external_secrets.resources
+  resources                  = var.external_secrets.resources
+  webhook_resources          = var.external_secrets.webhook.resources
+  cert_controller_resources  = var.external_secrets.certController.resources
 }
 
 module "kyverno" {
