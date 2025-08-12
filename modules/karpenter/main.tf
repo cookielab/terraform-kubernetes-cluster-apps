@@ -107,14 +107,15 @@ resource "helm_release" "this" {
       }
     }
 
-    controller = merge({
+    controller = {
       image = {
         repository = var.repository
       }
       metrics = {
         port = local.karpenter_metrics_port
       }
-    }, length(var.resources) > 0 ? { resources = var.resources } : {})
+      resources = var.resources
+    }
 
     settings = {
       clusterName       = data.aws_eks_cluster.this.name
