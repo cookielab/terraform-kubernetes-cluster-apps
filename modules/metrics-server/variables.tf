@@ -46,3 +46,9 @@ variable "resources" {
   })
   default = {}
 }
+
+variable "replicas" {
+  description = "Number of replicas for metrics-server"
+  type        = number
+  default     = 1
+}

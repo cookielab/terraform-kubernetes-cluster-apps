@@ -7,6 +7,7 @@ resource "helm_release" "this" {
   version    = "3.13.0"
 
   values = [yamlencode({
+    replicas = var.replicas
     image = {
       repository = var.repository
     }

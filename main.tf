@@ -26,6 +26,7 @@ module "metrics_server" {
 
   namespace     = local.namespace
   repository    = var.metrics_server.repository
+  replicas      = var.metrics_server.replicas
   node_selector = var.metrics_server.node_selector != null ? var.metrics_server.node_selector : var.node_selector
   tolerations   = var.metrics_server.tolerations != null ? var.metrics_server.tolerations : var.tolerations
   resources     = var.metrics_server.resources
@@ -78,8 +79,8 @@ module "external_secrets" {
   node_selector             = var.external_secrets.node_selector != null ? var.external_secrets.node_selector : var.node_selector
   tolerations               = var.external_secrets.tolerations != null ? var.external_secrets.tolerations : var.tolerations
   resources                 = var.external_secrets.resources
-  webhook_resources         = var.external_secrets.webhook.resources
-  cert_controller_resources = var.external_secrets.certController.resources
+  webhook_resources         = var.external_secrets.webhook
+  cert_controller_resources = var.external_secrets.certController
 }
 
 module "kyverno" {

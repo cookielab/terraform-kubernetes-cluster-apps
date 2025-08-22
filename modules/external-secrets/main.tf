@@ -7,6 +7,7 @@ resource "helm_release" "external_secrets_operator" {
   version    = "0.18.2"
 
   values = [yamlencode({
+    replicaCount = var.resources.replicas
     image = {
       repository = var.repository
     }
@@ -16,10 +17,12 @@ resource "helm_release" "external_secrets_operator" {
     }
     resources = var.resources
     webhook = {
-      resources = var.webhook_resources
+      replicaCount = var.webhook_resources.replicas
+      resources    = var.webhook_resources
     }
     certController = {
-      resources = var.cert_controller_resources
+      replicaCount = var.cert_controller_resources.replicas
+      resources    = var.cert_controller_resources
     }
   })]
 }

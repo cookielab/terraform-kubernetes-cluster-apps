@@ -26,6 +26,7 @@ variable "tolerations" {
 variable "cert_manager_resources" {
   description = "container resources for the cert-manager controller"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)
@@ -41,6 +42,7 @@ variable "cert_manager_resources" {
 variable "cainjector_resources" {
   description = "container resources for the cert-manager cainjector"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)
@@ -56,6 +58,7 @@ variable "cainjector_resources" {
 variable "webhook_resources" {
   description = "container resources for the cert-manager webhook"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)

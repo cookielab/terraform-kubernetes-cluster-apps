@@ -43,6 +43,7 @@ variable "metrics_server" {
   type = object({
     enabled       = optional(bool, true)
     repository    = optional(string, "registry.k8s.io/metrics-server/metrics-server")
+    replicas      = optional(number, 1)
     node_selector = optional(map(string), null)
     tolerations = optional(list(object({
       key      = string
@@ -187,6 +188,7 @@ variable "external_secrets" {
       effect   = optional(string, null)
     })), null)
     resources = optional(object({
+      replicas = optional(number, 1)
       limits = optional(object({
         cpu    = optional(string)
         memory = optional(string)
@@ -197,6 +199,7 @@ variable "external_secrets" {
       }), {})
     }), {})
     webhook = optional(object({
+      replicas = optional(number, 1)
       resources = optional(object({
         limits = optional(object({
           cpu    = optional(string)
@@ -209,6 +212,7 @@ variable "external_secrets" {
       }), {})
     }), {})
     certController = optional(object({
+      replicas = optional(number, 1)
       resources = optional(object({
         limits = optional(object({
           cpu    = optional(string)
@@ -362,6 +366,7 @@ variable "cert_manager" {
     })), null)
     resources = optional(object({
       cert_manager = optional(object({
+        replicas = optional(number, 1)
         limits = optional(object({
           cpu    = optional(string)
           memory = optional(string)
@@ -372,6 +377,7 @@ variable "cert_manager" {
         }), {})
       }), {})
       cainjector = optional(object({
+        replicas = optional(number, 1)
         limits = optional(object({
           cpu    = optional(string)
           memory = optional(string)
@@ -382,6 +388,7 @@ variable "cert_manager" {
         }), {})
       }), {})
       webhook = optional(object({
+        replicas = optional(number, 1)
         limits = optional(object({
           cpu    = optional(string)
           memory = optional(string)
@@ -393,6 +400,7 @@ variable "cert_manager" {
       }), {})
     }), {})
   })
+  default = {}
 }
 
 variable "fluent_bit" {

@@ -35,6 +35,7 @@ variable "tolerations" {
 variable "resources" {
   description = "container resources for the External Secrets controller"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)
@@ -50,6 +51,7 @@ variable "resources" {
 variable "webhook_resources" {
   description = "container resources for the External Secrets webhook"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)
@@ -65,6 +67,7 @@ variable "webhook_resources" {
 variable "cert_controller_resources" {
   description = "container resources for the External Secrets certController"
   type = object({
+    replicas = optional(number, 1)
     limits = optional(object({
       cpu    = optional(string)
       memory = optional(string)
