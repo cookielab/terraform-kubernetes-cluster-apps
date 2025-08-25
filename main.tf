@@ -26,8 +26,10 @@ module "metrics_server" {
 
   namespace     = local.namespace
   repository    = var.metrics_server.repository
+  replicas      = var.metrics_server.replicas
   node_selector = var.metrics_server.node_selector != null ? var.metrics_server.node_selector : var.node_selector
   tolerations   = var.metrics_server.tolerations != null ? var.metrics_server.tolerations : var.tolerations
+  resources     = var.metrics_server.resources
 }
 
 module "karpenter" {
@@ -48,6 +50,7 @@ module "karpenter" {
   spot_to_spot_consolidation = var.karpenter.spot_to_spot_consolidation
   pod_annotations            = var.karpenter.pod_annotations
   node_role_arn              = var.karpenter.node_role_arn
+  resources                  = var.karpenter.resources
 }
 
 module "keda" {
@@ -63,6 +66,7 @@ module "keda" {
   tolerations     = var.keda.tolerations
   pod_annotations = var.keda.pod_annotations
   role_arn        = var.keda.role_arn
+  resources       = var.keda.resources
 }
 
 module "external_secrets" {
@@ -70,10 +74,13 @@ module "external_secrets" {
 
   source = "./modules/external-secrets"
 
-  namespace     = local.namespace
-  repository    = var.external_secrets.repository
-  node_selector = var.external_secrets.node_selector != null ? var.external_secrets.node_selector : var.node_selector
-  tolerations   = var.external_secrets.tolerations != null ? var.external_secrets.tolerations : var.tolerations
+  namespace                 = local.namespace
+  repository                = var.external_secrets.repository
+  node_selector             = var.external_secrets.node_selector != null ? var.external_secrets.node_selector : var.node_selector
+  tolerations               = var.external_secrets.tolerations != null ? var.external_secrets.tolerations : var.tolerations
+  resources                 = var.external_secrets.resources
+  webhook_resources         = var.external_secrets.webhook
+  cert_controller_resources = var.external_secrets.certController
 }
 
 module "kyverno" {
@@ -101,6 +108,7 @@ module "fluent-bit" {
   node_selector   = var.fluent_bit.node_selector
   labels          = var.fluent_bit.labels
   pod_annotations = var.fluent_bit.pod_annotations
+  resources       = var.fluent_bit.resources
   loki = {
     tenant_id = var.fluent_bit.loki.tenant_id
     basic_auth = {
@@ -248,9 +256,12 @@ module "cert_manager" {
 
   source = "./modules/cert-manager"
 
-  namespace     = local.namespace
-  node_selector = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
-  tolerations   = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
+  namespace              = local.namespace
+  node_selector          = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
+  tolerations            = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
+  cert_manager_resources = var.cert_manager.resources.cert_manager
+  cainjector_resources   = var.cert_manager.resources.cainjector
+  webhook_resources      = var.cert_manager.resources.webhook
 }
 
 module "vpa" {

@@ -31,3 +31,51 @@ variable "tolerations" {
     operator = "Exists"
   }]
 }
+
+variable "resources" {
+  description = "container resources for the External Secrets controller"
+  type = object({
+    replicas = optional(number, 1)
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
+
+variable "webhook_resources" {
+  description = "container resources for the External Secrets webhook"
+  type = object({
+    replicas = optional(number, 1)
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
+
+variable "cert_controller_resources" {
+  description = "container resources for the External Secrets certController"
+  type = object({
+    replicas = optional(number, 1)
+    limits = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+    requests = optional(object({
+      cpu    = optional(string)
+      memory = optional(string)
+    }), {})
+  })
+  default = {}
+}
