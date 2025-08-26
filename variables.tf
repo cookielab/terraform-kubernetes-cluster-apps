@@ -480,8 +480,8 @@ variable "vpa" {
           memory = optional(string, "200Mi")
         }), {})
         requests = optional(object({
-          cpu    = optional(string, "50m")
-          memory = optional(string, "50Mi")
+          cpu    = optional(string, "10m")
+          memory = optional(string, "70Mi")
         }), {})
       }), {})
     }), {})
@@ -495,8 +495,8 @@ variable "vpa" {
           memory = optional(string, "200Mi")
         }), {})
         requests = optional(object({
-          cpu    = optional(string, "50m")
-          memory = optional(string, "50Mi")
+          cpu    = optional(string, "10m")
+          memory = optional(string, "70Mi")
         }), {})
       }), {})
     }), {})
@@ -510,7 +510,7 @@ variable "vpa" {
           memory = optional(string, "200Mi")
         }), {})
         requests = optional(object({
-          cpu    = optional(string, "50m")
+          cpu    = optional(string, "10m")
           memory = optional(string, "50Mi")
         }), {})
       }), {})

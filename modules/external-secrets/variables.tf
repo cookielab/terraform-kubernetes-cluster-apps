@@ -45,7 +45,17 @@ variable "resources" {
       memory = optional(string)
     }), {})
   })
-  default = {}
+  default = {
+    replicas = 1
+    requests = {
+      cpu    = "10m"
+      memory = "64Mi"
+    }
+    limits = {
+      cpu    = "1"
+      memory = "96Mi"
+    }
+  }
 }
 
 variable "webhook_resources" {
@@ -61,7 +71,17 @@ variable "webhook_resources" {
       memory = optional(string)
     }), {})
   })
-  default = {}
+  default = {
+    replicas = 1
+    requests = {
+      cpu    = "10m"
+      memory = "64Mi"
+    }
+    limits = {
+      cpu    = "1"
+      memory = "96Mi"
+    }
+  }
 }
 
 variable "cert_controller_resources" {
@@ -77,5 +97,15 @@ variable "cert_controller_resources" {
       memory = optional(string)
     }), {})
   })
-  default = {}
+  default = {
+    replicas = 1
+    requests = {
+      cpu    = "10m"
+      memory = "64Mi"
+    }
+    limits = {
+      cpu    = "1"
+      memory = "64Mi"
+    }
+  }
 }
