@@ -98,5 +98,14 @@ variable "resources" {
       memory = optional(string)
     }), {})
   })
-  default = {}
+  default = {
+    requests = {
+      cpu    = "100m"
+      memory = "256Mi"
+    }
+    limits = {
+      cpu    = "1"
+      memory = "300Mi"
+    }
+  }
 }
