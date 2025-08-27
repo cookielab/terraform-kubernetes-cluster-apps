@@ -16,6 +16,12 @@ variable "replicas" {
   default     = 2
 }
 
+variable "webhooks_replicas" {
+  description = "Number of replicas for Keda admission webhooks"
+  type        = number
+  default     = 2
+}
+
 variable "log_level" {
   description = "Logging level for Keda operator"
   type        = string

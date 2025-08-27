@@ -102,14 +102,15 @@ variable "karpenter" {
 variable "keda" {
   description = "Keda configuration"
   type = object({
-    enabled        = optional(bool, false)
-    repository     = optional(string, "https://kedacore.github.io/charts")
-    namespace      = optional(string, "cluster-apps")
-    replicas       = optional(number, 2)
-    log_level      = optional(string, "info")
-    metrics_server = optional(bool, true)
-    node_selector  = optional(map(string), {})
-    role_arn       = optional(string, null)
+    enabled           = optional(bool, false)
+    repository        = optional(string, "https://kedacore.github.io/charts")
+    namespace         = optional(string, "cluster-apps")
+    replicas          = optional(number, 2)
+    webhooks_replicas = optional(number, 2)
+    log_level         = optional(string, "info")
+    metrics_server    = optional(bool, true)
+    node_selector     = optional(map(string), {})
+    role_arn          = optional(string, null)
     tolerations = optional(list(object({
       key      = string
       operator = string

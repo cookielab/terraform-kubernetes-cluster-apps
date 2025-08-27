@@ -7,10 +7,15 @@ resource "helm_release" "keda" {
 
   values = [
     yamlencode({
-      replicas = var.replicas
+      operator = {
+        replicaCount = var.replicas
+      }
       logLevel = var.log_level
       metricsServer = {
         enabled = var.metrics_server
+      }
+      webhooks = {
+        replicaCount = var.webhooks_replicas
       }
       nodeSelector   = var.node_selector
       tolerations    = var.tolerations
