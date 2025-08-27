@@ -74,18 +74,18 @@ variable "pod_disruption_budget" {
   type = object({
     operator = optional(object({
       enabled        = optional(bool, false)
-      min_available   = optional(string, null)
-      max_unavailable = optional(string, "1")
+      minAvailable   = optional(string, null)
+      maxUnavailable = optional(string, "1")
     }), {})
     metricServer = optional(object({
       enabled        = optional(bool, false)
-      min_available   = optional(string, null)
-      max_unavailable = optional(string, "1")
+      minAvailable   = optional(string, null)
+      maxUnavailable = optional(string, "1")
     }), {})
     webhooks = optional(object({
       enabled        = optional(bool, false)
-      min_available   = optional(string, null)
-      max_unavailable = optional(string, "1")
+      minAvailable   = optional(string, null)
+      maxUnavailable = optional(string, "1")
     }), {})
   })
   default = {}
