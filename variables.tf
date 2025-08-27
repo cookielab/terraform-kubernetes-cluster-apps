@@ -94,16 +94,7 @@ variable "karpenter" {
         cpu    = optional(string, "300m")
         memory = optional(string, "256Mi")
       }), {})
-      }), {
-      requests = {
-        cpu    = "300m"
-        memory = "256Mi"
-      }
-      limits = {
-        cpu    = "10"
-        memory = "300Mi"
-      }
-    })
+    }), {})
   })
   default = {}
 }
