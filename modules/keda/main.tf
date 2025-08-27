@@ -31,6 +31,11 @@ resource "helm_release" "keda" {
         metricServer = var.resources.metricServer
         webhooks     = var.resources.webhooks
       }
+      podDisruptionBudget = {
+        operator     = var.pod_disruption_budget.operator
+        metricServer = var.pod_disruption_budget.metricServer
+        webhooks     = var.pod_disruption_budget.webhooks
+      }
     })
   ]
 }
