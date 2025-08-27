@@ -69,6 +69,7 @@ module "keda" {
   pod_annotations         = var.keda.pod_annotations
   role_arn                = var.keda.role_arn
   resources               = var.keda.resources
+  pod_disruption_budget   = var.keda.pod_disruption_budget
 }
 
 module "external_secrets" {

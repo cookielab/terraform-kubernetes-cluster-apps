@@ -69,6 +69,28 @@ variable "role_arn" {
   nullable    = true
 }
 
+variable "pod_disruption_budget" {
+  description = "Pod Disruption Budget configuration for Keda components"
+  type = object({
+    operator = optional(object({
+      enabled        = optional(bool, false)
+      min_available   = optional(string, null)
+      max_unavailable = optional(string, "1")
+    }), {})
+    metricServer = optional(object({
+      enabled        = optional(bool, false)
+      min_available   = optional(string, null)
+      max_unavailable = optional(string, "1")
+    }), {})
+    webhooks = optional(object({
+      enabled        = optional(bool, false)
+      min_available   = optional(string, null)
+      max_unavailable = optional(string, "1")
+    }), {})
+  })
+  default = {}
+}
+
 variable "resources" {
   description = "container resources for Keda components"
   type = object({
