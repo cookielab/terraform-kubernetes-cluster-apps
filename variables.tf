@@ -87,14 +87,23 @@ variable "karpenter" {
     node_role_arn              = optional(string, null)
     resources = optional(object({
       limits = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "10")
+        memory = optional(string, "300Mi")
       }), {})
       requests = optional(object({
-        cpu    = optional(string)
-        memory = optional(string)
+        cpu    = optional(string, "300m")
+        memory = optional(string, "256Mi")
       }), {})
-    }), {})
+      }), {
+      requests = {
+        cpu    = "300m"
+        memory = "256Mi"
+      }
+      limits = {
+        cpu    = "10"
+        memory = "300Mi"
+      }
+    })
   })
   default = {}
 }
