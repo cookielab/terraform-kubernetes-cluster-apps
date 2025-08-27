@@ -57,16 +57,18 @@ module "keda" {
   count  = var.keda.enabled ? 1 : 0
   source = "./modules/keda"
 
-  namespace       = var.keda.namespace
-  repository      = var.keda.repository
-  replicas        = var.keda.replicas
-  log_level       = var.keda.log_level
-  metrics_server  = var.keda.metrics_server
-  node_selector   = var.keda.node_selector
-  tolerations     = var.keda.tolerations
-  pod_annotations = var.keda.pod_annotations
-  role_arn        = var.keda.role_arn
-  resources       = var.keda.resources
+  namespace               = var.keda.namespace
+  repository              = var.keda.repository
+  replicas                = var.keda.replicas
+  webhooks_replicas       = var.keda.webhooks_replicas
+  metrics_server_replicas = var.keda.metrics_server_replicas
+  log_level               = var.keda.log_level
+  metrics_server          = var.keda.metrics_server
+  node_selector           = var.keda.node_selector
+  tolerations             = var.keda.tolerations
+  pod_annotations         = var.keda.pod_annotations
+  role_arn                = var.keda.role_arn
+  resources               = var.keda.resources
 }
 
 module "external_secrets" {
