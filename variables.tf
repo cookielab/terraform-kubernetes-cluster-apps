@@ -175,19 +175,19 @@ variable "keda" {
     })
     pod_disruption_budget = optional(object({
       operator = optional(object({
-        enabled         = optional(bool, false)
-        min_available   = optional(string, null)
-        max_unavailable = optional(string, "1")
+        enabled        = optional(bool, false)
+        minAvailable   = optional(string, null)
+        maxUnavailable = optional(string, "1")
       }), {})
       metricServer = optional(object({
-        enabled         = optional(bool, false)
-        min_available   = optional(string, null)
-        max_unavailable = optional(string, "1")
+        enabled        = optional(bool, false)
+        minAvailable   = optional(string, null)
+        maxUnavailable = optional(string, "1")
       }), {})
       webhooks = optional(object({
-        enabled         = optional(bool, false)
-        min_available   = optional(string, null)
-        max_unavailable = optional(string, "1")
+        enabled        = optional(bool, false)
+        minAvailable   = optional(string, null)
+        maxUnavailable = optional(string, "1")
       }), {})
     }), {})
   })
