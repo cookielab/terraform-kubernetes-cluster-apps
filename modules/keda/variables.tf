@@ -13,13 +13,13 @@ variable "repository" {
 variable "replicas" {
   description = "Number of replicas for Keda operator"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "webhooks_replicas" {
   description = "Number of replicas for Keda admission webhooks"
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "metrics_server_replicas" {
