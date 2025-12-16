@@ -12,7 +12,7 @@ resource "helm_release" "keda" {
       }
       logLevel = var.log_level
       metricsServer = {
-        enabled     = var.metrics_server
+        enabled      = var.metrics_server
         replicaCount = var.metrics_server_replicas
       }
       webhooks = {

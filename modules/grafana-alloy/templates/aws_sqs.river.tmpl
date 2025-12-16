@@ -1,0 +1,71 @@
+declare "aws_sqs" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send Prometheus metrics"
+  }
+
+  argument "region" {
+    optional = false
+    comment  = "Aws region for metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  argument "scrape_period" {
+    optional = true
+    default  = "1m"
+    comment  = "Scrape period settings"
+  }
+
+  argument "search_tags" {
+    optional = true
+    default  = {}
+    comment  = "Search tags for tag-based filtering"
+  }
+
+  prometheus.exporter.cloudwatch "sqs" {
+    sts_region = "eu-west-1"
+    fips_disabled = true
+    discovery {
+      type        = "AWS/SQS"
+      regions     = [argument.region.value]
+      search_tags = argument.search_tags.value
+
+      metric {
+        name       = "NumberOfMessagesSent"
+        statistics = ["Average"]
+        period     = argument.scrape_period.value
+      }
+
+      metric {
+        name       = "ApproximateNumberOfMessagesDelayed"
+        statistics = ["Sum"]
+        period     = argument.scrape_period.value
+      }
+
+      metric {
+        name       = "ApproximateAgeOfOldestMessage"
+        statistics = ["Maximum"]
+        period     = argument.scrape_period.value
+      }
+    }
+  }
+
+  prometheus.scrape "sqs" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+
+    targets    = prometheus.exporter.cloudwatch.sqs.targets
+    forward_to = [argument.metrics_output.value]
+  }
+}
