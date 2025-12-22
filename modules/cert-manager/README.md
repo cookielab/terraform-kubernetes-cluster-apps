@@ -4,7 +4,7 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9, < 2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.27 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
 | <a name="requirement_http"></a> [http](#requirement\_http) | ~> 3.4 |
 
@@ -32,9 +32,12 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_cainjector_resources"></a> [cainjector\_resources](#input\_cainjector\_resources) | container resources for the cert-manager cainjector | <pre>object({<br/>    replicas = optional(number, 1)<br/>    limits = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>    requests = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>  })</pre> | `{}` | no |
+| <a name="input_cert_manager_resources"></a> [cert\_manager\_resources](#input\_cert\_manager\_resources) | container resources for the cert-manager controller | <pre>object({<br/>    replicas = optional(number, 1)<br/>    limits = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>    requests = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | value of the namespace to deploy the cert manager | `string` | `"cluster-apps"` | no |
 | <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | node selector to deploy the cert manager | `map(string)` | <pre>{<br/>  "node.kubernetes.io/pool": "critical"<br/>}</pre> | no |
 | <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | tolerations to deploy the cert manager | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    value    = optional(string, null)<br/>    effect   = optional(string, null)<br/>  }))</pre> | `[]` | no |
+| <a name="input_webhook_resources"></a> [webhook\_resources](#input\_webhook\_resources) | container resources for the cert-manager webhook | <pre>object({<br/>    replicas = optional(number, 1)<br/>    limits = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>    requests = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 
