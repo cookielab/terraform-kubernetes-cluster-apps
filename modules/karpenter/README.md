@@ -4,23 +4,23 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9, < 2.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.27 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.27 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.30 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 3.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.27 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.27 |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 3.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.30 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 3.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_irsa"></a> [irsa](#module\_irsa) | terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks | 5.58.0 |
+| <a name="module_irsa"></a> [irsa](#module\_irsa) | terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks | 5.60.0 |
 
 ## Resources
 
@@ -57,6 +57,7 @@
 | <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | annotations to deploy the karpenter | `map(string)` | `{}` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | number of replicas to deploy the karpenter | `number` | `2` | no |
 | <a name="input_repository"></a> [repository](#input\_repository) | repository of immage to deploy the karpenter | `string` | `"public.ecr.aws/karpenter/controller"` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | container resources for Karpenter controller | <pre>object({<br/>    limits = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>    requests = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>  })</pre> | <pre>{<br/>  "limits": {<br/>    "cpu": "1",<br/>    "memory": "300Mi"<br/>  },<br/>  "requests": {<br/>    "cpu": "100m",<br/>    "memory": "256Mi"<br/>  }<br/>}</pre> | no |
 | <a name="input_spot_to_spot_consolidation"></a> [spot\_to\_spot\_consolidation](#input\_spot\_to\_spot\_consolidation) | setting this to true will enable spot replacement consolidation for both single and multi-node consolidation. | `bool` | `false` | no |
 | <a name="input_tag_key"></a> [tag\_key](#input\_tag\_key) | tag key to identify the EKS cluster | `string` | `"eks:eks-cluster-name"` | no |
 | <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | tolerations to deploy the karpenter | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    value    = optional(string, null)<br/>    effect   = string<br/>  }))</pre> | <pre>[<br/>  {<br/>    "effect": "NoSchedule",<br/>    "key": "CriticalAddonsOnly",<br/>    "operator": "Exists"<br/>  }<br/>]</pre> | no |
