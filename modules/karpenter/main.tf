@@ -93,7 +93,7 @@ resource "helm_release" "this" {
 
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
-  version    = "1.6.3"
+  version    = "1.8.6"
 
   values = [yamlencode({
     replicas     = var.replicas
