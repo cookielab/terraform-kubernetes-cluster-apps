@@ -4,7 +4,7 @@ resource "helm_release" "external_secrets_operator" {
 
   repository = "https://charts.external-secrets.io"
   chart      = "external-secrets"
-  version    = "0.20.4"
+  version    = "1.3.2"
 
   values = [yamlencode({
     replicaCount = var.resources.replicas
