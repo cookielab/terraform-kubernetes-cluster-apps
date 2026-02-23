@@ -315,37 +315,56 @@ variable "kyverno" {
 variable "grafana_alloy" {
   description = "grafana alloy configuration"
   type = object({
+    chart_version = optional(string, "1.0.2")
     image = optional(object({
+      registry   = optional(string, "docker.io")
       repository = optional(string, "grafana/alloy")
     }), {})
     metrics = optional(object({
-      endpoint    = optional(string, null)
-      tenant      = optional(string, null)
-      ssl_enabled = optional(bool, false)
-      tenant_id   = optional(string, null)
+      endpoint     = optional(string, null)
+      tenant       = optional(string, null)
+      ssl_enabled  = optional(bool, false)
+      backend_type = optional(string, "mimir")
     }), {})
     cluster = optional(object({
-      enabled  = optional(bool, true)
-      replicas = optional(number, 3)
-      requests = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "256Mi")
+      enabled       = optional(bool, true)
+      replicas      = optional(number, 3)
+      node_selector = optional(map(string), null)
+      tolerations = optional(list(object({
+        key      = string
+        operator = string
+        value    = optional(string, null)
+        effect   = optional(string, null)
+      })), null)
+      resources = optional(object({
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "256Mi")
+        }), {})
+        limits = optional(object({
+          cpu    = optional(string, null)
+          memory = optional(string, null)
+        }), {})
       }), {})
-      limits = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "256Mi")
-      }), {})
-
     }), {})
     node = optional(object({
-      enabled = optional(bool, true)
-      requests = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "128Mi")
-      }), {})
-      limits = optional(object({
-        cpu    = optional(string, "100m")
-        memory = optional(string, "256Mi")
+      enabled       = optional(bool, true)
+      node_selector = optional(map(string), null)
+      tolerations = optional(list(object({
+        key      = string
+        operator = string
+        value    = optional(string, null)
+        effect   = optional(string, null)
+      })), null)
+      resources = optional(object({
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "128Mi")
+        }), {})
+        limits = optional(object({
+          cpu    = optional(string, null)
+          memory = optional(string, null)
+        }), {})
       }), {})
     }), {})
     loki = optional(object({
@@ -359,6 +378,23 @@ variable "grafana_alloy" {
       clustering_enabled     = optional(bool, false)
       scrape_logs_method     = optional(string, "api")
       replicas               = optional(number, 1)
+      node_selector          = optional(map(string), null)
+      tolerations = optional(list(object({
+        key      = string
+        operator = string
+        value    = optional(string, null)
+        effect   = optional(string, null)
+      })), null)
+      resources = optional(object({
+        requests = optional(object({
+          cpu    = optional(string, "100m")
+          memory = optional(string, "256Mi")
+        }), {})
+        limits = optional(object({
+          cpu    = optional(string, null)
+          memory = optional(string, null)
+        }), {})
+      }), {})
     }), {})
     aws = optional(object({
       account = optional(string, "")
@@ -369,6 +405,10 @@ variable "grafana_alloy" {
   validation {
     condition     = contains(["file", "api"], var.grafana_alloy.loki.scrape_logs_method)
     error_message = "Valid values for loki.scrape_logs_method are \"file\" or \"api\"."
+  }
+  validation {
+    condition     = contains(["mimir", "prometheus"], var.grafana_alloy.metrics.backend_type)
+    error_message = "Valid values for metrics.backend_type are \"mimir\" or \"prometheus\"."
   }
 }
 

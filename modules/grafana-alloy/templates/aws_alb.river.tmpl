@@ -1,0 +1,103 @@
+declare "aws_alb" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send Prometheus metrics"
+  }
+
+  argument "region" {
+    optional = false
+    comment  = "Aws region for metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  argument "scrape_period" {
+    optional = true
+    default  = "1m"
+    comment  = "Scrape period settings"
+  }
+
+  argument "search_tags" {
+    optional = true
+    default  = {}
+    comment  = "Search tags for tag-based filtering"
+  }
+
+  prometheus.exporter.cloudwatch "alb" {
+    sts_region = "eu-west-1"
+    fips_disabled = true
+    discovery {
+      type        = "AWS/ApplicationELB"
+      regions     = [argument.region.value]
+      dimension_name_requirements = ["LoadBalancer"]
+      search_tags = argument.search_tags.value
+
+      metric {
+        name       = "ActiveConnectionCount"
+        statistics = ["Sum"]
+        period     = argument.scrape_period.value
+      }
+
+      metric {
+        name       = "HTTPCode_ELB_5XX_Count"
+        statistics = ["Sum"]
+        period     = argument.scrape_period.value
+      }
+
+      metric {
+        name       = "HTTPCode_ELB_4XX_Count"
+        statistics = ["Sum"]
+        period     = argument.scrape_period.value
+      }
+    }
+  }
+
+  prometheus.exporter.cloudwatch "targetgroup" {
+    sts_region = "eu-west-1"
+    fips_disabled = true
+    discovery {
+      type        = "AWS/ApplicationELB"
+      regions     = [argument.region.value]
+      dimension_name_requirements = ["LoadBalancer", "TargetGroup"]
+      search_tags = argument.search_tags.value
+
+      metric {
+        name       = "RequestCount"
+        statistics = ["Average"]
+        period     = argument.scrape_period.value
+      }
+
+      metric {
+        name       = "HealthyHostCount"
+        statistics = ["Minimum"]
+        period     = argument.scrape_period.value
+      }
+    }
+  }
+
+  prometheus.scrape "alb" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+
+    targets    = prometheus.exporter.cloudwatch.alb.targets
+    forward_to = [argument.metrics_output.value]
+  }
+
+  prometheus.scrape "targetgroup" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+
+    targets    = prometheus.exporter.cloudwatch.targetgroup.targets
+    forward_to = [argument.metrics_output.value]
+  }
+}
