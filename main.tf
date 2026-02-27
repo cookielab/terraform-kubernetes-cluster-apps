@@ -150,7 +150,7 @@ module "grafana_alloy_cluster" {
   count = var.grafana_alloy.cluster.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/cluster"
-  version                 = "v0.0.6"
+  version                 = "v1.0.1"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace

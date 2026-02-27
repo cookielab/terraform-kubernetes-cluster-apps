@@ -316,10 +316,11 @@ variable "grafana_alloy" {
   description = "grafana alloy configuration"
   type = object({
     global_tolerations = optional(list(object({
-      key      = optional(string, null)
-      operator = optional(string, null)
-      value    = optional(string, null)
-      effect   = optional(string, null)
+      key               = optional(string, null)
+      operator          = optional(string, null)
+      value             = optional(string, null)
+      effect            = optional(string, null)
+      tolerationSeconds = optional(number, null)
     })), [])
     image = optional(object({
       repository = optional(string, "grafana/alloy")
