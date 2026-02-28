@@ -184,7 +184,7 @@ module "grafana_alloy_loki" {
   count = var.grafana_alloy.loki.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/loki-logs"
-  version                 = "v0.0.6"
+  version                 = "v1.0.1"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
@@ -230,7 +230,7 @@ module "grafana_alloy_node" {
   count = var.grafana_alloy.node.enabled ? 1 : 0
 
   source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
-  version                 = "v0.0.6"
+  version                 = "v1.0.1"
   kubernetes_cluster_name = var.cluster_name
   chart_version           = "0.12.5"
   kubernetes_namespace    = local.namespace
