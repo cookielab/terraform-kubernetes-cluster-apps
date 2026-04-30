@@ -4,6 +4,8 @@ locals {
 }
 
 data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+data "aws_region" "current" {}
 
 data "aws_eks_cluster" "this" {
   name = var.cluster_name
@@ -60,24 +62,130 @@ moved {
   to   = aws_iam_policy.iam_pass_role[0]
 }
 
-module "irsa" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.60.0"
-
-  role_name_prefix = "karpenter-${data.aws_eks_cluster.this.name}"
-  role_description = "IRSA role for karpenter"
-
-  role_policy_arns = var.node_role_arn == null ? {} : {
-    policy = aws_iam_policy.iam_pass_role[0].arn
+data "aws_iam_policy_document" "karpenter_controller" {
+  statement {
+    actions = [
+      "ec2:CreateFleet",
+      "ec2:CreateLaunchTemplate",
+      "ec2:CreateTags",
+      "ec2:DescribeAvailabilityZones",
+      "ec2:DescribeImages",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInstanceTypeOfferings",
+      "ec2:DescribeInstanceTypes",
+      "ec2:DescribeInstanceStatus",
+      "ec2:DescribeLaunchTemplates",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSpotPriceHistory",
+      "ec2:DescribeSubnets",
+      "pricing:GetProducts",
+    ]
+    resources = ["*"]
   }
 
-  attach_karpenter_controller_policy         = true
-  enable_karpenter_instance_profile_creation = true
+  statement {
+    actions = [
+      "ec2:TerminateInstances",
+      "ec2:DeleteLaunchTemplate",
+    ]
+    resources = ["*"]
 
-  karpenter_controller_cluster_name       = data.aws_eks_cluster.this.name
-  karpenter_controller_node_iam_role_arns = concat([for node_group in data.aws_eks_node_group.this : node_group.node_role_arn], ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${data.aws_eks_cluster.this.name}-karpenter-*"])
-  karpenter_tag_key                       = var.tag_key
-  karpenter_sqs_queue_arn                 = var.enable_disruption ? aws_sqs_queue.disruption[0].arn : null
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/${var.tag_key}"
+      values   = [data.aws_eks_cluster.this.name]
+    }
+  }
+
+  statement {
+    actions = ["ec2:RunInstances"]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:launch-template/*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/${var.tag_key}"
+      values   = [data.aws_eks_cluster.this.name]
+    }
+  }
+
+  statement {
+    actions = ["ec2:RunInstances"]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:ec2:*::image/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:spot-instances-request/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:security-group/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:volume/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:network-interface/*",
+      "arn:${data.aws_partition.current.partition}:ec2:*:${data.aws_caller_identity.current.account_id}:subnet/*",
+    ]
+  }
+
+  statement {
+    actions   = ["ssm:GetParameter"]
+    resources = ["arn:${data.aws_partition.current.partition}:ssm:*:*:parameter/aws/service/*"]
+  }
+
+  statement {
+    actions = ["iam:PassRole"]
+    resources = concat(
+      [for node_group in data.aws_eks_node_group.this : node_group.node_role_arn],
+      ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/${data.aws_eks_cluster.this.name}-karpenter-*"]
+    )
+  }
+
+  statement {
+    actions = [
+      "iam:AddRoleToInstanceProfile",
+      "iam:CreateInstanceProfile",
+      "iam:DeleteInstanceProfile",
+      "iam:GetInstanceProfile",
+      "iam:ListInstanceProfiles",
+      "iam:RemoveRoleFromInstanceProfile",
+      "iam:TagInstanceProfile",
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    actions   = ["eks:DescribeCluster"]
+    resources = ["arn:${data.aws_partition.current.partition}:eks:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:cluster/${data.aws_eks_cluster.this.name}"]
+  }
+
+  dynamic "statement" {
+    for_each = var.enable_disruption ? [1] : []
+
+    content {
+      actions = [
+        "sqs:DeleteMessage",
+        "sqs:GetQueueAttributes",
+        "sqs:GetQueueUrl",
+        "sqs:ReceiveMessage",
+      ]
+      resources = [aws_sqs_queue.disruption[0].arn]
+    }
+  }
+}
+
+resource "aws_iam_policy" "karpenter_controller" {
+  name   = "${data.aws_eks_cluster.this.name}-karpenter-controller"
+  policy = data.aws_iam_policy_document.karpenter_controller.json
+}
+
+module "irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "6.5.0"
+
+  name            = "karpenter-${data.aws_eks_cluster.this.name}"
+  use_name_prefix = false
+  description     = "IRSA role for karpenter"
+
+  policies = merge(
+    { karpenter_controller = aws_iam_policy.karpenter_controller.arn },
+    var.node_role_arn == null ? {} : { node_pass_role = aws_iam_policy.iam_pass_role[0].arn }
+  )
 
   oidc_providers = {
     main = {
@@ -103,7 +211,7 @@ resource "helm_release" "this" {
     serviceAccount = {
       name = local.karpenter_service_account_name
       annotations = {
-        "eks.amazonaws.com/role-arn" = module.irsa.iam_role_arn
+        "eks.amazonaws.com/role-arn" = module.irsa.arn
       }
     }
 
