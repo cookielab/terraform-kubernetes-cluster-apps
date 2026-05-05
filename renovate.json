@@ -4,6 +4,14 @@
     "config:recommended",
     ":disableDependencyDashboard"
   ],
+  "packageRules": [
+    {
+      "matchManagers": ["terraform"],
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["keda"],
+      "registryUrls": ["https://kedacore.github.io/charts"]
+    }
+  ],
   "assignees": [
     "stepanclb"
   ]
