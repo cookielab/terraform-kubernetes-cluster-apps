@@ -3,7 +3,7 @@ resource "helm_release" "keda" {
   repository = var.repository
   chart      = "keda"
   namespace  = var.namespace
-  version    = "2.16.1"
+  version    = "2.19.0"
 
   values = [
     yamlencode({
