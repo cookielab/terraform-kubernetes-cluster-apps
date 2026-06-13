@@ -125,9 +125,7 @@ resource "helm_release" "this" {
       batchMaxDuration  = var.batch_max_duration
       batchIdleDuration = var.batch_idle_duration
 
-      featureGates = {
-        spotToSpotConsolidation = var.spot_to_spot_consolidation
-      }
+      featureGates = local.karpenter_feature_gates
     }
 
     podAnnotations = merge({

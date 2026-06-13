@@ -47,6 +47,7 @@ module "karpenter" {
   enable_disruption          = var.karpenter.enable_disruption
   batch_max_duration         = var.karpenter.batch_max_duration
   batch_idle_duration        = var.karpenter.batch_idle_duration
+  feature_gates              = var.karpenter.feature_gates
   spot_to_spot_consolidation = var.karpenter.spot_to_spot_consolidation
   pod_annotations            = var.karpenter.pod_annotations
   node_role_arn              = var.karpenter.node_role_arn
