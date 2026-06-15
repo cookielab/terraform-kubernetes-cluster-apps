@@ -68,8 +68,20 @@ variable "batch_idle_duration" {
   default     = "1s"
 }
 
+variable "feature_gates" {
+  description = "Karpenter controller feature gates. Omitted keys use Karpenter chart defaults."
+  type = object({
+    node_repair                = optional(bool)
+    node_overlay               = optional(bool)
+    reserved_capacity          = optional(bool)
+    spot_to_spot_consolidation = optional(bool)
+    static_capacity            = optional(bool)
+  })
+  default = {}
+}
+
 variable "spot_to_spot_consolidation" {
-  description = "setting this to true will enable spot replacement consolidation for both single and multi-node consolidation."
+  description = "Deprecated: prefer feature_gates.spot_to_spot_consolidation. Used when feature_gates.spot_to_spot_consolidation is not set."
   type        = bool
   default     = false
 }
