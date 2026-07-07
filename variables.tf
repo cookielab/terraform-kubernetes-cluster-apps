@@ -349,7 +349,14 @@ variable "grafana_alloy" {
         cpu    = optional(string, "100m")
         memory = optional(string, "256Mi")
       }), {})
-
+      k8s_pods = optional(object({
+        scrape_interval        = optional(string, "1m")
+        scrape_timeout         = optional(string, "30s")
+        scrape_pods_global     = optional(bool, false)
+        scrape_pods_annotation = optional(string, "prometheus_io_scrape")
+        label_drop_regex       = optional(string, "")
+        label_keep_regex       = optional(string, "")
+      }), {})
     }), {})
     node = optional(object({
       enabled = optional(bool, true)

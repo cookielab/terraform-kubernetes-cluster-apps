@@ -177,8 +177,9 @@ module "grafana_alloy_cluster" {
       cpu    = var.grafana_alloy.cluster.limits.cpu
       memory = var.grafana_alloy.cluster.limits.memory
     }
-
   }
+
+  k8s_pods = var.grafana_alloy.cluster.k8s_pods
 }
 
 module "grafana_alloy_loki" {
