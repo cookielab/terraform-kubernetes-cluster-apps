@@ -9,7 +9,7 @@ jobs:
     name: Terraform Format
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.15
       options: --user root
       credentials:
           username: ${{ github.actor }}
@@ -18,35 +18,35 @@ jobs:
       packages: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Check Terraform format
         run: terraform fmt -check=true
   lint:
     name: TF Lint
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.15
       options: --user root
       credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Check TF lint
         run: tflint
   validate:
     name: Terraform Validate
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/cookielab/container-image-terraform:1.13
+      image: ghcr.io/cookielab/container-image-terraform:1.15
       options: --user root
       credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Inject additional provider
         uses: "finnp/create-file-action@master"
         env:

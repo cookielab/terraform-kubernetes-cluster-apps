@@ -77,11 +77,18 @@ variable "karpenter" {
       value    = optional(string, null)
       effect   = optional(string, null)
     })), null)
-    replicas                   = optional(number, 2)
-    tag_key                    = optional(string, "eks:eks-cluster-name")
-    enable_disruption          = optional(bool, true)
-    batch_max_duration         = optional(string, "10s")
-    batch_idle_duration        = optional(string, "1s")
+    replicas            = optional(number, 2)
+    tag_key             = optional(string, "eks:eks-cluster-name")
+    enable_disruption   = optional(bool, true)
+    batch_max_duration  = optional(string, "10s")
+    batch_idle_duration = optional(string, "1s")
+    feature_gates = optional(object({
+      node_repair                = optional(bool)
+      node_overlay               = optional(bool)
+      reserved_capacity          = optional(bool)
+      spot_to_spot_consolidation = optional(bool)
+      static_capacity            = optional(bool)
+    }), {})
     spot_to_spot_consolidation = optional(bool, false)
     pod_annotations            = optional(map(string), {})
     node_role_arn              = optional(string, null)
@@ -316,6 +323,13 @@ variable "grafana_alloy" {
   description = "grafana alloy configuration"
   type = object({
     chart_version = optional(string, "1.0.2")
+    global_tolerations = optional(list(object({
+      key               = optional(string, null)
+      operator          = optional(string, null)
+      value             = optional(string, null)
+      effect            = optional(string, null)
+      tolerationSeconds = optional(number, null)
+    })), [])
     image = optional(object({
       registry   = optional(string, "docker.io")
       repository = optional(string, "grafana/alloy")
@@ -345,6 +359,14 @@ variable "grafana_alloy" {
           cpu    = optional(string, null)
           memory = optional(string, null)
         }), {})
+      }), {})
+      k8s_pods = optional(object({
+        scrape_interval        = optional(string, "1m")
+        scrape_timeout         = optional(string, "30s")
+        scrape_pods_global     = optional(bool, false)
+        scrape_pods_annotation = optional(string, "prometheus_io_scrape")
+        label_drop_regex       = optional(string, "")
+        label_keep_regex       = optional(string, "")
       }), {})
     }), {})
     node = optional(object({

@@ -17,6 +17,10 @@ resource "kubernetes_namespace_v1" "this" {
 
 locals {
   namespace = var.namespace.create ? kubernetes_namespace_v1.this[0].metadata[0].name : var.namespace.name
+
+  # Fallback chain for Grafana Alloy tolerations, most specific first:
+  # per-submodule tolerations -> grafana_alloy.global_tolerations -> repo-wide var.tolerations
+  grafana_alloy_tolerations = length(var.grafana_alloy.global_tolerations) > 0 ? var.grafana_alloy.global_tolerations : var.tolerations
 }
 
 module "metrics_server" {
@@ -47,6 +51,7 @@ module "karpenter" {
   enable_disruption          = var.karpenter.enable_disruption
   batch_max_duration         = var.karpenter.batch_max_duration
   batch_idle_duration        = var.karpenter.batch_idle_duration
+  feature_gates              = var.karpenter.feature_gates
   spot_to_spot_consolidation = var.karpenter.spot_to_spot_consolidation
   pod_annotations            = var.karpenter.pod_annotations
   node_role_arn              = var.karpenter.node_role_arn
@@ -166,7 +171,7 @@ module "grafana_alloy_cluster" {
     registry   = var.grafana_alloy.image.registry
   }
 
-  tolerations   = var.grafana_alloy.cluster.tolerations != null ? var.grafana_alloy.cluster.tolerations : var.tolerations
+  tolerations   = var.grafana_alloy.cluster.tolerations != null ? var.grafana_alloy.cluster.tolerations : local.grafana_alloy_tolerations
   node_selector = var.grafana_alloy.cluster.node_selector != null ? var.grafana_alloy.cluster.node_selector : var.node_selector
 
   agent_resources = {
@@ -179,6 +184,8 @@ module "grafana_alloy_cluster" {
       memory = var.grafana_alloy.cluster.resources.limits.memory
     }
   }
+
+  k8s_pods = var.grafana_alloy.cluster.k8s_pods
 }
 
 module "grafana_alloy_loki" {
@@ -213,7 +220,7 @@ module "grafana_alloy_loki" {
 
   aws = var.grafana_alloy.aws
 
-  tolerations   = var.grafana_alloy.loki.tolerations != null ? var.grafana_alloy.loki.tolerations : var.tolerations
+  tolerations   = var.grafana_alloy.loki.tolerations != null ? var.grafana_alloy.loki.tolerations : local.grafana_alloy_tolerations
   node_selector = var.grafana_alloy.loki.node_selector != null ? var.grafana_alloy.loki.node_selector : var.node_selector
 
   agent_resources = {
@@ -247,7 +254,7 @@ module "grafana_alloy_node" {
     registry   = var.grafana_alloy.image.registry
   }
 
-  tolerations   = var.grafana_alloy.node.tolerations != null ? var.grafana_alloy.node.tolerations : var.tolerations
+  tolerations   = var.grafana_alloy.node.tolerations != null ? var.grafana_alloy.node.tolerations : local.grafana_alloy_tolerations
   node_selector = var.grafana_alloy.node.node_selector != null ? var.grafana_alloy.node.node_selector : var.node_selector
 
   agent_resources = {

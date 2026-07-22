@@ -69,13 +69,13 @@ EOF
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5, < 2.0 |
-| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0.0 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.1.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 3.0.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 3.1.0 |
 
 ## Modules
 
@@ -101,7 +101,8 @@ No modules.
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The namespace to deploy the Fluent Bit service to | `string` | `"monitoring"` | no |
 | <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | The node selector for the Fluent Bit service | `map(string)` | `{}` | no |
 | <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | The pod annotations for the Fluent Bit service | `map(string)` | `{}` | no |
-| <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | The tolerations for the Fluent Bit service | <pre>list(object({<br/>    key = string<br/>    operator = string<br/>    value = string<br/>    effect = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | Container resources for the Fluent Bit DaemonSet | <pre>object({<br/>    limits = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>    requests = optional(object({<br/>      cpu    = optional(string)<br/>      memory = optional(string)<br/>    }), {})<br/>  })</pre> | `{}` | no |
+| <a name="input_tolerations"></a> [tolerations](#input\_tolerations) | The tolerations for the Fluent Bit service | <pre>list(object({<br/>    key      = string<br/>    operator = string<br/>    value    = string<br/>    effect   = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_use_defaults"></a> [use\_defaults](#input\_use\_defaults) | Whether to use the default outputs | `map(bool)` | <pre>{<br/>  "filters": true,<br/>  "inputs": true,<br/>  "outputs": true<br/>}</pre> | no |
 
 ## Outputs

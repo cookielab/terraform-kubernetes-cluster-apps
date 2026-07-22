@@ -30,7 +30,7 @@ resource "helm_release" "crds" {
 
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter-crd"
-  version    = "1.6.3"
+  version    = "1.11.1"
 }
 
 data "aws_iam_policy_document" "iam_pass_role" {
@@ -93,7 +93,7 @@ resource "helm_release" "this" {
 
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter"
-  version    = "1.6.3"
+  version    = "1.11.1"
 
   values = [yamlencode({
     replicas     = var.replicas
@@ -125,9 +125,7 @@ resource "helm_release" "this" {
       batchMaxDuration  = var.batch_max_duration
       batchIdleDuration = var.batch_idle_duration
 
-      featureGates = {
-        spotToSpotConsolidation = var.spot_to_spot_consolidation
-      }
+      featureGates = local.karpenter_feature_gates
     }
 
     podAnnotations = merge({
