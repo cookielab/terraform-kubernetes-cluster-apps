@@ -1,20 +1,20 @@
 module "grafana_alloy" {
   source = "../../"
 
-  agent_name         = "loki-logs"
-  agent_resources    = var.agent_resources
-  clustering_enabled = var.loki.scrape_logs_method == "file" ? false : var.clustering_enabled
-  chart_version      = var.chart_version
+  agent_name           = var.agent_name
+  agent_resources      = var.agent_resources
+  clustering_enabled   = var.loki.scrape_logs_method == "file" ? false : var.clustering_enabled
+  chart_version        = var.chart_version
   controller_resources = var.controller_resources
-  cluster_name       = var.cluster_name
-  kubernetes_kind    = var.loki.scrape_logs_method == "file" ? "daemonset" : "deployment"
-  namespace          = var.namespace
-  image              = var.image
-  metrics            = var.metrics
-  stability_level    = var.stability_level
-  live_debug         = var.live_debug
-  aws                = var.aws
-  replicas           = var.replicas
+  cluster_name         = var.cluster_name
+  kubernetes_kind      = var.loki.scrape_logs_method == "file" ? "daemonset" : "deployment"
+  namespace            = var.namespace
+  image                = var.image
+  metrics              = var.metrics
+  stability_level      = var.stability_level
+  live_debug           = var.live_debug
+  aws                  = var.aws
+  replicas             = var.replicas
   pod_disruption_budget = var.loki.scrape_logs_method == "file" ? {
     enabled         = false
     min_available   = null
@@ -38,7 +38,10 @@ module "grafana_alloy" {
   integrations = {
     loki_logs = true
   }
+  autoscaling   = var.loki.scrape_logs_method == "file" ? {} : var.autoscaling
   loki          = var.loki
+  host_network  = var.host_network
+  ingress       = var.ingress
   tolerations   = var.tolerations
   node_selector = var.node_selector
   config = concat(var.config, [<<-EOF

@@ -8,10 +8,11 @@ resource "helm_release" "grafana_alloy" {
 
   values = [yamlencode({
     image = var.image
-    controller = {
-      type      = var.kubernetes_kind
-      resources = var.controller_resources
-      replicas  = var.replicas
+    controller = merge({
+      type        = var.kubernetes_kind
+      resources   = var.controller_resources
+      replicas    = var.replicas
+      hostNetwork = var.host_network != null ? var.host_network : (var.kubernetes_kind == "daemonset")
       podDisruptionBudget = {
         enabled        = var.pod_disruption_budget.enabled
         minAvailable   = var.pod_disruption_budget.min_available
@@ -27,20 +28,16 @@ resource "helm_release" "grafana_alloy" {
       }
       tolerations  = var.tolerations
       nodeSelector = var.node_selector
-    }
-    alloy = merge(var.integrations.otel_collector ? { extraPorts = [
-      {
-        name       = "http-otel"
-        targetPort = var.otel.http_port
-        port       = var.otel.http_port
-        protocol   = "TCP"
-      },
-      {
-        name       = "grpc-otel"
-        targetPort = var.otel.grpc_port
-        port       = var.otel.grpc_port
-        protocol   = "TCP"
-      }]
+      }, var.clustering_enabled ? {
+      autoscaling = {
+        enabled                        = true
+        minReplicas                    = var.autoscaling.min_replicas
+        maxReplicas                    = var.autoscaling.max_replicas
+        targetCPUUtilizationPercentage = var.autoscaling.target_cpu_utilization_percentage
+      }
+    } : {})
+    alloy = merge(length(local.alloy_extra_ports) > 0 ? {
+      extraPorts = local.alloy_extra_ports
       } : {}, {
       mode = "flow"
       liveDebug = {
@@ -50,7 +47,7 @@ resource "helm_release" "grafana_alloy" {
       clustering = {
         enabled = var.clustering_enabled
       }
-      stabilityLevel = var.stability_level
+      stabilityLevel = local.stability_level
       configMap = {
         create = false
         name   = kubernetes_config_map_v1.grafana_alloy.metadata[0].name
@@ -69,6 +66,22 @@ resource "helm_release" "grafana_alloy" {
         }]
       }
     })
+    ingress = merge({
+      enabled     = var.ingress.enabled
+      annotations = var.ingress.annotations
+      labels      = var.ingress.labels
+      path        = var.ingress.path
+      faroPort    = var.ingress.port
+      pathType    = var.ingress.path_type
+      hosts       = var.ingress.hosts
+      extraPaths  = var.ingress.extra_paths
+      tls = [for tls in var.ingress.tls : {
+        secretName = tls.secret_name
+        hosts      = tls.hosts
+      }]
+      }, var.ingress.ingress_class_name != null ? {
+      ingressClassName = var.ingress.ingress_class_name
+    } : {})
     }),
     var.iam_role_arn != "" ? yamlencode({
       serviceAccount = {

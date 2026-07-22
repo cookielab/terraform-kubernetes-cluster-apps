@@ -3,6 +3,12 @@ variable "namespace" {
   description = "Kubernetes namespace"
 }
 
+variable "agent_name" {
+  type        = string
+  default     = null
+  description = "Name suffix of the Grafana Alloy release. The final Helm release name will be grafana-alloy-{agent_name}. Defaults to \"single{tenant_distinguisher}\"."
+}
+
 variable "cluster_name" {
   type        = string
   description = "Kubernetes cluster name"
@@ -65,6 +71,9 @@ variable "metrics" {
     tenant       = optional(string, "default")
     backend_type = optional(string, "mimir")
     ssl_enabled  = optional(bool, true)
+    bearer_token = optional(string, null)
+    username     = optional(string, null)
+    password     = optional(string, null)
   })
   default     = {}
   description = "Grafana Alloy metrics endpoint of Prometheus-compatible receiver. NOTE: You must provide the base URL of the API. Mimir and Promethes backends are supported."
@@ -110,13 +119,14 @@ variable "tenant_distinguisher" {
 
 variable "tolerations" {
   type = list(object({
-    key      = string
-    operator = string
-    value    = optional(string)
-    effect   = string
+    key               = string
+    operator          = string
+    value             = optional(string)
+    effect            = string
+    tolerationSeconds = optional(number)
   }))
   default     = []
-  description = "Tolerations for the Grafana Alloy"
+  description = "Global tolerations for the Grafana Alloy"
 }
 
 variable "node_selector" {
@@ -137,4 +147,73 @@ variable "pod_disruption_budget" {
     max_unavailable = null
   }
   description = "Grafana Alloy pod disruption budget configuration"
+}
+
+variable "kubernetes_kind" {
+  type        = string
+  default     = "deployment"
+  description = "Grafana Alloy Kubernetes resource kind. Valid values are \"deployment\" or \"daemonset\"."
+
+  validation {
+    condition     = contains(["deployment", "daemonset"], var.kubernetes_kind)
+    error_message = "Valid values for kubernetes_kind are \"deployment\" or \"daemonset\"."
+  }
+}
+
+variable "clustering_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Grafana Alloy clustering."
+}
+
+variable "replicas" {
+  type        = number
+  default     = 1
+  description = "Number of Grafana Alloy replicas."
+}
+
+variable "host_network" {
+  type        = bool
+  default     = null
+  description = "Enable hostNetwork for the Grafana Alloy controller. When null, defaults to true for daemonset and false for deployment."
+}
+
+variable "ingress" {
+  type = object({
+    enabled            = optional(bool, false)
+    ingress_class_name = optional(string, null)
+    annotations        = optional(map(string), {})
+    labels             = optional(map(string), {})
+    path               = optional(string, "/")
+    path_type          = optional(string, "Prefix")
+    hosts              = optional(list(string), [])
+    extra_paths        = optional(list(any), [])
+    tls = optional(list(object({
+      secret_name = optional(string)
+      hosts       = optional(list(string), [])
+    })), [])
+    port = optional(number, 12345)
+  })
+  default     = {}
+  description = "Ingress configuration for Grafana Alloy."
+
+  validation {
+    condition     = contains(["Prefix", "Exact", "ImplementationSpecific"], var.ingress.path_type)
+    error_message = "Valid values for ingress.path_type are \"Prefix\", \"Exact\", or \"ImplementationSpecific\"."
+  }
+
+  validation {
+    condition     = var.ingress.port > 0 && var.ingress.port < 65536
+    error_message = "ingress.port must be a valid TCP port between 1 and 65535."
+  }
+}
+
+variable "autoscaling" {
+  type = object({
+    min_replicas                      = optional(number, 2)
+    max_replicas                      = optional(number, 5)
+    target_cpu_utilization_percentage = optional(number, 80)
+  })
+  default     = {}
+  description = "Autoscaling (HPA) configuration. Active when clustering_enabled = true."
 }

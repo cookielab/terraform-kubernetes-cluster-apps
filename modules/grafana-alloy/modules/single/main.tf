@@ -1,21 +1,24 @@
 module "grafana_alloy" {
   source = "../../"
 
-  agent_name           = "single${var.tenant_distinguisher}"
-  agent_resources      = var.agent_resources
-  clustering_enabled   = false
-  chart_version        = var.chart_version
-  controller_resources = var.controller_resources
-  cluster_name         = var.cluster_name
-  kubernetes_kind      = "deployment"
-  namespace            = var.namespace
-  image                = var.image
-  metrics              = var.metrics
-  otel                 = var.otel
-  replicas             = 1
-  tolerations          = var.tolerations
-  node_selector        = var.node_selector
+  agent_name            = coalesce(var.agent_name, "single${var.tenant_distinguisher}")
+  agent_resources       = var.agent_resources
+  clustering_enabled    = var.clustering_enabled
+  chart_version         = var.chart_version
+  controller_resources  = var.controller_resources
+  cluster_name          = var.cluster_name
+  kubernetes_kind       = var.kubernetes_kind
+  namespace             = var.namespace
+  image                 = var.image
+  metrics               = var.metrics
+  otel                  = var.otel
+  replicas              = var.replicas
+  host_network          = var.host_network
+  ingress               = var.ingress
+  tolerations           = var.tolerations
+  node_selector         = var.node_selector
   pod_disruption_budget = var.pod_disruption_budget
+  autoscaling           = var.autoscaling
   integrations = {
     k8s_mimir_rules = true
   }

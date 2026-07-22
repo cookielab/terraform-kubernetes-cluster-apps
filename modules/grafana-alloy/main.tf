@@ -14,4 +14,43 @@ locals {
       memory = var.agent_resources.limits.memory == null ? var.agent_resources.requests.memory : var.agent_resources.limits.memory
     }
   }
+
+  deltatocumulative_enabled = var.integrations.otel_collector
+  stability_level           = local.deltatocumulative_enabled ? "experimental" : var.stability_level
+
+  otel_extra_ports = var.integrations.otel_collector ? concat(
+    [
+      {
+        name       = "http-otel"
+        targetPort = var.otel.http_port
+        port       = var.otel.http_port
+        protocol   = "TCP"
+      },
+      {
+        name       = "grpc-otel"
+        targetPort = var.otel.grpc_port
+        port       = var.otel.grpc_port
+        protocol   = "TCP"
+      }
+    ],
+    var.otel.datadog_receiver_enabled ? [
+      {
+        name       = "datadog"
+        targetPort = var.otel.datadog_port
+        port       = var.otel.datadog_port
+        protocol   = "TCP"
+      }
+    ] : []
+  ) : []
+
+  ingress_extra_ports = var.ingress.enabled && var.ingress.port != 12345 && !contains([for port in local.otel_extra_ports : port.port], var.ingress.port) ? [
+    {
+      name       = format("ingress-%d", var.ingress.port)
+      targetPort = var.ingress.port
+      port       = var.ingress.port
+      protocol   = "TCP"
+    }
+  ] : []
+
+  alloy_extra_ports = concat(local.otel_extra_ports, local.ingress_extra_ports)
 }

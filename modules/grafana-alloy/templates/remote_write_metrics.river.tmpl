@@ -6,6 +6,17 @@ prometheus.remote_write "default" {
         "X-Scope-OrgID" = sys.env("GRAFANA_ALLOY_METRICS_TENANT"),
       }
     %{ endif }
+    %{ if try(grafana_alloy_metrics_bearer_token, null) != null }
+      authorization {
+        credentials = sys.env("GRAFANA_ALLOY_METRICS_BEARER_TOKEN")
+      }
+    %{ endif }
+    %{ if try(grafana_alloy_metrics_username, null) != null }
+      basic_auth {
+        username = sys.env("GRAFANA_ALLOY_METRICS_USERNAME")
+        password = sys.env("GRAFANA_ALLOY_METRICS_PASSWORD")
+      }
+    %{ endif }
   }
 
   external_labels = {

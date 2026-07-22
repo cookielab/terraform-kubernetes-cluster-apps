@@ -108,9 +108,12 @@ variable "metrics" {
     tenant       = optional(string, null)
     backend_type = optional(string, "mimir")
     ssl_enabled  = optional(bool, true)
+    bearer_token = optional(string, null)
+    username     = optional(string, null)
+    password     = optional(string, null)
   })
   default     = {}
-  description = "Grafana Alloy metrics endpoint of Prometheus-compatible receiver. NOTE: You must provide the base URL of the API."
+  description = "Grafana Alloy metrics endpoint of Prometheus-compatible receiver. NOTE: You must provide the base URL of the API. Use bearer_token for Bearer auth or username+password for Basic auth."
 
   validation {
     condition     = contains(["mimir", "prometheus"], var.metrics.backend_type)
@@ -123,10 +126,16 @@ variable "otel" {
     http_port                 = optional(number, 4318)
     grpc_port                 = optional(number, 4317)
     endpoint                  = optional(string, "http://tempo:4318")
+    tenant_id                 = optional(string, null)
     service_graphs_dimensions = optional(list(string), [])
+    span_metrics_dimensions   = optional(list(string), [])
+    datadog_receiver_enabled  = optional(bool, false)
+    datadog_port              = optional(number, 8126)
+    bearer_token              = optional(string, null)
+    logs_enabled              = optional(bool, false)
   })
   default     = {}
-  description = "Grafana Alloy OTel configuration. NOTE: There can be only one OTel receiver at the moment."
+  description = "Grafana Alloy OTel configuration. Set datadog_receiver_enabled = true to additionally receive Datadog-format traces and metrics on datadog_port. Set bearer_token to require Bearer Token authentication on the OTLP receiver."
 }
 
 variable "host_volumes" {
@@ -174,7 +183,7 @@ variable "tolerations" {
     tolerationSeconds = optional(number)
   }))
   default     = []
-  description = "Tolerations for the Grafana Alloy"
+  description = "Global tolerations for the Grafana Alloy"
 }
 
 variable "node_selector" {
@@ -208,6 +217,7 @@ variable "loki" {
     username               = optional(string, "admin")
     password               = optional(string, "admin")
     auth_enabled           = optional(bool, false)
+    remote_timeout         = optional(string, "30s")
     scrape_pods_global     = optional(bool, true)
     scrape_pods_annotation = optional(string, "loki.logs.enabled")
     scrape_logs_method     = optional(string, "api")
@@ -252,6 +262,52 @@ variable "live_debug" {
   type        = bool
   default     = false
   description = "Enable live debug for the Grafana Alloy"
+}
+
+variable "autoscaling" {
+  type = object({
+    min_replicas                      = optional(number, 2)
+    max_replicas                      = optional(number, 5)
+    target_cpu_utilization_percentage = optional(number, 80)
+  })
+  default     = {}
+  description = "Autoscaling (HPA) configuration for Grafana Alloy. Automatically enabled when clustering_enabled = true."
+}
+
+variable "host_network" {
+  type        = bool
+  default     = null
+  description = "Enable hostNetwork for the Grafana Alloy controller. When null, defaults to true for daemonset and false for deployment."
+}
+
+variable "ingress" {
+  type = object({
+    enabled            = optional(bool, false)
+    ingress_class_name = optional(string, null)
+    annotations        = optional(map(string), {})
+    labels             = optional(map(string), {})
+    path               = optional(string, "/")
+    path_type          = optional(string, "Prefix")
+    hosts              = optional(list(string), [])
+    extra_paths        = optional(list(any), [])
+    tls = optional(list(object({
+      secret_name = optional(string)
+      hosts       = optional(list(string), [])
+    })), [])
+    port = optional(number, 12345)
+  })
+  default     = {}
+  description = "Ingress configuration for Grafana Alloy. The selected ingress port defaults to the Alloy UI port and is also exposed through the Service when needed."
+
+  validation {
+    condition     = contains(["Prefix", "Exact", "ImplementationSpecific"], var.ingress.path_type)
+    error_message = "Valid values for ingress.path_type are \"Prefix\", \"Exact\", or \"ImplementationSpecific\"."
+  }
+
+  validation {
+    condition     = var.ingress.port > 0 && var.ingress.port < 65536
+    error_message = "ingress.port must be a valid TCP port between 1 and 65535."
+  }
 }
 
 variable "pod_disruption_budget" {

@@ -23,7 +23,10 @@ resource "kubernetes_config_map_v1" "grafana_alloy" {
           var.integrations.aws_mq ? file("${path.module}/templates/aws_mq.river.tmpl") : "",
           var.integrations.aws_opensearch ? file("${path.module}/templates/aws_opensearch.river.tmpl") : "",
           var.integrations.remote_write_metrics ? templatefile("${path.module}/templates/remote_write_metrics.river.tmpl", {
-            grafana_alloy_metrics_tenant = var.metrics.tenant
+            grafana_alloy_metrics_tenant       = var.metrics.tenant
+            grafana_alloy_metrics_bearer_token = var.metrics.bearer_token
+            grafana_alloy_metrics_username     = var.metrics.username
+            grafana_alloy_metrics_password     = var.metrics.password
           }) : "",
           var.integrations.kafka_jmx_metrics ? templatefile("${path.module}/templates/kafka_jmx_metrics.river.tmpl", {
             addresses             = var.kafka_jmx_metrics.kafka_broker_list
@@ -33,12 +36,21 @@ resource "kubernetes_config_map_v1" "grafana_alloy" {
             otel_http_port                 = var.otel.http_port
             otel_grpc_port                 = var.otel.grpc_port
             otel_service_graphs_dimensions = var.otel.service_graphs_dimensions
+            otel_span_metrics_dimensions   = var.otel.span_metrics_dimensions
+            otel_tenant_id                 = var.otel.tenant_id
+            otel_datadog_receiver_enabled  = var.otel.datadog_receiver_enabled
+            otel_datadog_port              = var.otel.datadog_port
+            otel_bearer_token_enabled      = var.otel.bearer_token != null
+            otel_logs_enabled              = var.otel.logs_enabled
+            loki_auth_enabled              = var.loki.auth_enabled
+            loki_remote_timeout            = var.loki.remote_timeout
           }) : "",
           var.integrations.loki_logs ? templatefile("${path.module}/templates/loki_pod_logs.river.tmpl", {
             scrape_pods_global     = var.loki.scrape_pods_global
             scrape_pods_annotation = var.loki.scrape_pods_annotation
             loki_auth_enabled      = var.loki.auth_enabled
             loki_tenant_id         = var.loki.tenant_id
+            loki_remote_timeout    = var.loki.remote_timeout
             clustering_enabled     = var.clustering_enabled
             scrape_logs_method     = var.loki.scrape_logs_method
           }) : "",

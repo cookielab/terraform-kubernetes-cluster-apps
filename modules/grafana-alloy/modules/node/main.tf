@@ -1,20 +1,23 @@
 module "grafana_alloy" {
   source = "../../"
 
-  agent_name           = "node"
-  agent_resources      = var.agent_resources
-  clustering_enabled   = false
-  chart_version        = var.chart_version
-  controller_resources = var.controller_resources
-  cluster_name         = var.cluster_name
-  kubernetes_kind      = "daemonset"
-  namespace            = var.namespace
-  image                = var.image
-  metrics              = var.metrics
-  otel                 = var.otel
+  agent_name            = var.agent_name
+  agent_resources       = var.agent_resources
+  clustering_enabled    = false
+  chart_version         = var.chart_version
+  controller_resources  = var.controller_resources
+  cluster_name          = var.cluster_name
+  kubernetes_kind       = "daemonset"
+  namespace             = var.namespace
+  image                 = var.image
+  metrics               = var.metrics
+  otel                  = var.otel
+  host_network          = var.host_network
+  ingress               = var.ingress
   pod_disruption_budget = var.pod_disruption_budget
 
-  tolerations   = var.tolerations
+  tolerations = var.tolerations
+
   node_selector = var.node_selector
   integrations = {
     node_exporter = true

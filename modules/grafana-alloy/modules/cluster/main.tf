@@ -1,25 +1,28 @@
 module "grafana_alloy" {
   source = "../../"
 
-  agent_name           = "clustered"
-  agent_resources      = var.agent_resources
-  clustering_enabled   = true
-  chart_version        = var.chart_version
-  controller_resources = var.controller_resources
-  cluster_name         = var.cluster_name
-  kubernetes_kind      = "deployment"
-  namespace            = var.namespace
-  image                = var.image
-  metrics              = var.metrics
-  replicas             = var.replicas
-  k8s_pods             = var.k8s_pods
+  agent_name            = var.agent_name
+  agent_resources       = var.agent_resources
+  clustering_enabled    = true
+  chart_version         = var.chart_version
+  controller_resources  = var.controller_resources
+  cluster_name          = var.cluster_name
+  kubernetes_kind       = "deployment"
+  namespace             = var.namespace
+  image                 = var.image
+  metrics               = var.metrics
+  replicas              = var.replicas
+  k8s_pods              = var.k8s_pods
   pod_disruption_budget = var.pod_disruption_budget
+  autoscaling           = var.autoscaling
   integrations = {
     k8s_cadvisor = true
     k8s_kubelet  = true
     k8s_pods     = true
     k8s_services = true
   }
+  host_network  = var.host_network
+  ingress       = var.ingress
   tolerations   = var.tolerations
   node_selector = var.node_selector
   config = concat(var.config, [<<-EOF
