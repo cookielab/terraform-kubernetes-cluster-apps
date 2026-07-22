@@ -17,6 +17,10 @@ resource "kubernetes_namespace_v1" "this" {
 
 locals {
   namespace = var.namespace.create ? kubernetes_namespace_v1.this[0].metadata[0].name : var.namespace.name
+
+  # Fallback chain for Grafana Alloy tolerations, most specific first:
+  # per-submodule tolerations -> grafana_alloy.global_tolerations -> repo-wide var.tolerations
+  grafana_alloy_tolerations = length(var.grafana_alloy.global_tolerations) > 0 ? var.grafana_alloy.global_tolerations : var.tolerations
 }
 
 module "metrics_server" {
@@ -150,32 +154,34 @@ module "fluent-bit" {
 module "grafana_alloy_cluster" {
   count = var.grafana_alloy.cluster.enabled ? 1 : 0
 
-  source                  = "cookielab/grafana-alloy/kubernetes//modules/cluster"
-  version                 = "v1.0.6"
-  kubernetes_cluster_name = var.cluster_name
-  chart_version           = "0.12.5"
-  kubernetes_namespace    = local.namespace
+  source        = "./modules/grafana-alloy/modules/cluster"
+  cluster_name  = var.cluster_name
+  chart_version = var.grafana_alloy.chart_version
+  namespace     = local.namespace
 
-  replicas           = var.grafana_alloy.cluster.replicas
-  global_tolerations = var.grafana_alloy.global_tolerations
+  replicas = var.grafana_alloy.cluster.replicas
   metrics = {
-    endpoint    = var.grafana_alloy.metrics.endpoint
-    tenant      = var.grafana_alloy.metrics.tenant
-    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+    endpoint     = var.grafana_alloy.metrics.endpoint
+    tenant       = var.grafana_alloy.metrics.tenant
+    ssl_enabled  = var.grafana_alloy.metrics.ssl_enabled
+    backend_type = var.grafana_alloy.metrics.backend_type
   }
   image = {
     repository = var.grafana_alloy.image.repository
+    registry   = var.grafana_alloy.image.registry
   }
 
+  tolerations   = var.grafana_alloy.cluster.tolerations != null ? var.grafana_alloy.cluster.tolerations : local.grafana_alloy_tolerations
+  node_selector = var.grafana_alloy.cluster.node_selector != null ? var.grafana_alloy.cluster.node_selector : var.node_selector
 
   agent_resources = {
     requests = {
-      cpu    = var.grafana_alloy.cluster.requests.cpu
-      memory = var.grafana_alloy.cluster.requests.memory
+      cpu    = var.grafana_alloy.cluster.resources.requests.cpu
+      memory = var.grafana_alloy.cluster.resources.requests.memory
     }
     limits = {
-      cpu    = var.grafana_alloy.cluster.limits.cpu
-      memory = var.grafana_alloy.cluster.limits.memory
+      cpu    = var.grafana_alloy.cluster.resources.limits.cpu
+      memory = var.grafana_alloy.cluster.resources.limits.memory
     }
   }
 
@@ -185,18 +191,16 @@ module "grafana_alloy_cluster" {
 module "grafana_alloy_loki" {
   count = var.grafana_alloy.loki.enabled ? 1 : 0
 
-  source                  = "cookielab/grafana-alloy/kubernetes//modules/loki-logs"
-  version                 = "v1.0.6"
-  kubernetes_cluster_name = var.cluster_name
-  chart_version           = "0.12.5"
-  kubernetes_namespace    = local.namespace
+  source        = "./modules/grafana-alloy/modules/loki-logs"
+  cluster_name  = var.cluster_name
+  chart_version = var.grafana_alloy.chart_version
+  namespace     = local.namespace
 
-  replicas           = var.grafana_alloy.loki.replicas
-  global_tolerations = var.grafana_alloy.global_tolerations
+  replicas = var.grafana_alloy.loki.replicas
   metrics = {
-    endpoint    = var.grafana_alloy.metrics.endpoint
-    tenant      = var.grafana_alloy.metrics.tenant
-    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+    endpoint     = var.grafana_alloy.metrics.endpoint
+    tenant       = var.grafana_alloy.metrics.tenant
+    backend_type = var.grafana_alloy.metrics.backend_type
   }
 
   loki = {
@@ -211,51 +215,58 @@ module "grafana_alloy_loki" {
   clustering_enabled = var.grafana_alloy.loki.clustering_enabled
   image = {
     repository = var.grafana_alloy.image.repository
+    registry   = var.grafana_alloy.image.registry
   }
 
   aws = var.grafana_alloy.aws
 
+  tolerations   = var.grafana_alloy.loki.tolerations != null ? var.grafana_alloy.loki.tolerations : local.grafana_alloy_tolerations
+  node_selector = var.grafana_alloy.loki.node_selector != null ? var.grafana_alloy.loki.node_selector : var.node_selector
+
   agent_resources = {
     requests = {
-      cpu    = var.grafana_alloy.cluster.requests.cpu
-      memory = var.grafana_alloy.cluster.requests.memory
+      cpu    = var.grafana_alloy.loki.resources.requests.cpu
+      memory = var.grafana_alloy.loki.resources.requests.memory
     }
     limits = {
-      cpu    = var.grafana_alloy.cluster.limits.cpu
-      memory = var.grafana_alloy.cluster.limits.memory
+      cpu    = var.grafana_alloy.loki.resources.limits.cpu
+      memory = var.grafana_alloy.loki.resources.limits.memory
     }
-
   }
 }
 
 module "grafana_alloy_node" {
   count = var.grafana_alloy.node.enabled ? 1 : 0
 
-  source                  = "cookielab/grafana-alloy/kubernetes//modules/node"
-  version                 = "v1.0.6"
-  kubernetes_cluster_name = var.cluster_name
-  chart_version           = "0.12.5"
-  kubernetes_namespace    = local.namespace
-  global_tolerations      = var.grafana_alloy.global_tolerations
+  source        = "./modules/grafana-alloy/modules/node"
+  cluster_name  = var.cluster_name
+  chart_version = var.grafana_alloy.chart_version
+  namespace     = local.namespace
+
   metrics = {
-    endpoint    = var.grafana_alloy.metrics.endpoint
-    tenant      = var.grafana_alloy.metrics.tenant
-    ssl_enabled = var.grafana_alloy.metrics.ssl_enabled
+    endpoint     = var.grafana_alloy.metrics.endpoint
+    tenant       = var.grafana_alloy.metrics.tenant
+    ssl_enabled  = var.grafana_alloy.metrics.ssl_enabled
+    backend_type = var.grafana_alloy.metrics.backend_type
   }
   image = {
     repository = var.grafana_alloy.image.repository
-  }
-  agent_resources = {
-    requests = {
-      cpu    = var.grafana_alloy.node.requests.cpu
-      memory = var.grafana_alloy.node.requests.memory
-    }
-    limits = {
-      cpu    = var.grafana_alloy.node.limits.cpu
-      memory = var.grafana_alloy.node.limits.memory
-    }
+    registry   = var.grafana_alloy.image.registry
   }
 
+  tolerations   = var.grafana_alloy.node.tolerations != null ? var.grafana_alloy.node.tolerations : local.grafana_alloy_tolerations
+  node_selector = var.grafana_alloy.node.node_selector != null ? var.grafana_alloy.node.node_selector : var.node_selector
+
+  agent_resources = {
+    requests = {
+      cpu    = var.grafana_alloy.node.resources.requests.cpu
+      memory = var.grafana_alloy.node.resources.requests.memory
+    }
+    limits = {
+      cpu    = var.grafana_alloy.node.resources.limits.cpu
+      memory = var.grafana_alloy.node.resources.limits.memory
+    }
+  }
 }
 
 module "cert_manager" {
