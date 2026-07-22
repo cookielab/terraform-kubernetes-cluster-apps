@@ -322,7 +322,7 @@ variable "kyverno" {
 variable "grafana_alloy" {
   description = "grafana alloy configuration"
   type = object({
-    chart_version = optional(string, "1.0.2")
+    chart_version = optional(string, "0.12.5")
     global_tolerations = optional(list(object({
       key               = optional(string, null)
       operator          = optional(string, null)
@@ -384,8 +384,8 @@ variable "grafana_alloy" {
           memory = optional(string, "128Mi")
         }), {})
         limits = optional(object({
-          cpu    = optional(string, null)
-          memory = optional(string, null)
+          cpu    = optional(string, "100m")
+          memory = optional(string, "256Mi")
         }), {})
       }), {})
     }), {})
