@@ -143,8 +143,7 @@ module "fluent-bit" {
     inputs  = var.fluent_bit.logs_custom.inputs
   }
   logs_endpoint_url = var.fluent_bit.logs_endpoint_url
-
-
+  extra_values      = var.fluent_bit.extra_values
 }
 
 module "grafana_alloy_cluster" {

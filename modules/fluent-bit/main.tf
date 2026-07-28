@@ -5,7 +5,7 @@ resource "helm_release" "fluentbit" {
   version    = "0.57.9"
   namespace  = var.namespace
 
-  values = [yamlencode({
+  values = [yamlencode(merge({
     config = {
       inputs = templatefile("${path.module}/config/inputs.tftpl", {
         logs_custom  = var.logs_custom.inputs
@@ -29,6 +29,6 @@ resource "helm_release" "fluentbit" {
     labels         = var.labels
     podAnnotations = var.pod_annotations
     resources      = var.resources
-  })]
+  }, var.extra_values))]
 }
 
