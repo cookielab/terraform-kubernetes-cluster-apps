@@ -498,6 +498,7 @@ variable "fluent_bit" {
         memory = optional(string)
       }), {})
     }), {})
+    extra_values = optional(any, {})
   })
   default = {}
 }

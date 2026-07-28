@@ -2,7 +2,7 @@
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.9, < 2.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.27 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 3.0 |
@@ -11,7 +11,7 @@
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.27 |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 3.0 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 3.0 |
@@ -19,13 +19,13 @@
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_irsa"></a> [irsa](#module\_irsa) | terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks | 5.60.0 |
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_event_rule.disruption_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
 | [aws_cloudwatch_event_target.disruption_events](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
 | [aws_iam_policy.iam_pass_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -46,7 +46,7 @@
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_batch_idle_duration"></a> [batch\_idle\_duration](#input\_batch\_idle\_duration) | the maximum amount of time with no new ending pods that if exceeded ends the current batching window. If pods arrive faster than this time, the batching window will be extended up to the maxDuration. if they arrive slower, the pods will be batched separately. | `string` | `"1s"` | no |
 | <a name="input_batch_max_duration"></a> [batch\_max\_duration](#input\_batch\_max\_duration) | the maximum length of a batch window. the longer this is, the more pods we can consider for provisioning at one time which usually results in fewer but larger nodes. | `string` | `"10s"` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | name of the EKS cluster | `string` | n/a | yes |
