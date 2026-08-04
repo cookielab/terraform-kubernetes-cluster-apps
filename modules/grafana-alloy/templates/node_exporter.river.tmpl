@@ -1,0 +1,33 @@
+declare "node_exporter" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  prometheus.exporter.unix "node_exporter" {
+    procfs_path = "/host/proc"
+    rootfs_path = "/host/root"
+    sysfs_path  = "/host/sys"
+  }
+
+  prometheus.scrape "node_exporter" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+    honor_labels    = true
+
+    targets    = prometheus.exporter.unix.node_exporter.targets
+    forward_to = [argument.metrics_output.value]
+  }
+}

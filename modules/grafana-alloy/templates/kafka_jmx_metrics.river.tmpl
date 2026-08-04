@@ -1,0 +1,39 @@
+declare "kafka_jmx_metrics" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send Prometheus metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  argument "scrape_period" {
+    optional = true
+    default  = "1m"
+    comment  = "Scrape period settings"
+  }
+
+  prometheus.scrape "kafka" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+
+    targets = [
+      %{ for addr in addresses }
+      {
+        __address__      = "${addr}",
+        __metrics_path__ = "${metrics_endpoint_path}",
+      },
+      %{ endfor }
+    ]
+    forward_to = [argument.metrics_output.value]
+  }
+}

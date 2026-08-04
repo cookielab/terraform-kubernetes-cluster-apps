@@ -1,0 +1,211 @@
+declare "otel_collector" {
+
+  argument "traces_output" {
+    optional = false
+    comment = "Where to send OTel traces"
+  }
+
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send Prometheus metrics"
+  }
+
+%{ if otel_bearer_token_enabled }
+  otelcol.auth.bearer "otlp" {
+    token = sys.env("GRAFANA_ALLOY_OTLP_BEARER_TOKEN")
+  }
+%{ endif }
+
+  otelcol.receiver.otlp "default" {
+    http {
+      endpoint = "0.0.0.0:${otel_http_port}"
+%{ if otel_bearer_token_enabled }
+      auth     = otelcol.auth.bearer.otlp.handler
+%{ endif }
+    }
+    grpc {
+      endpoint = "0.0.0.0:${otel_grpc_port}"
+%{ if otel_bearer_token_enabled }
+      auth     = otelcol.auth.bearer.otlp.handler
+%{ endif }
+    }
+
+    output {
+      traces  = [otelcol.processor.attributes.default.input]
+      metrics = [otelcol.processor.attributes.default.input]
+%{ if otel_logs_enabled }
+      logs    = [otelcol.processor.attributes.default.input]
+%{ endif }
+    }
+  }
+
+%{ if otel_datadog_receiver_enabled }
+  otelcol.receiver.datadog "default" {
+    endpoint = "0.0.0.0:${otel_datadog_port}"
+
+    output {
+      traces  = [otelcol.processor.attributes.default.input]
+      metrics = [otelcol.processor.attributes.default.input]
+%{ if otel_logs_enabled }
+      logs    = [otelcol.processor.attributes.default.input]
+%{ endif }
+    }
+  }
+%{ endif }
+
+  otelcol.processor.attributes "default" {
+    action {
+      action = "upsert"
+      key    = "k8s.cluster.name"
+      value  = sys.env("GRAFANA_ALLOY_K8S_CLUSTER")
+    }
+
+    output {
+      traces  = [otelcol.processor.k8sattributes.default.input]
+      metrics = [otelcol.processor.k8sattributes.default.input]
+%{ if otel_logs_enabled }
+      logs    = [otelcol.processor.k8sattributes.default.input]
+%{ endif }
+    }
+  }
+
+  otelcol.processor.k8sattributes "default" {
+    pod_association {
+      source {
+        from = "connection"
+      }
+      source {
+        from = "resource_attribute"
+        name = "k8s.pod.ip"
+      }
+      source {
+        from = "resource_attribute"
+        name = "k8s.pod.uid"
+      }
+    }
+
+    extract {
+      label {
+        from      = "pod"
+        key_regex = "app.kubernetes.io/(.*)"
+        tag_name  = "k8s.app.$1"
+      }
+
+      annotation {
+        from      = "pod"
+        key_regex = "app.gitlab.com/(.*)"
+        tag_name  = "k8s.gl.$1"
+      }
+
+      metadata = [
+        "k8s.namespace.name",
+        "k8s.node.name",
+        "k8s.pod.name",
+        "k8s.pod.start_time",
+        "k8s.pod.uid",
+      ]
+    }
+
+    output {
+      traces = [
+        otelcol.connector.servicegraph.default.input,
+        otelcol.connector.spanmetrics.default.input,
+        otelcol.processor.batch.default.input,
+      ]
+      metrics = [otelcol.processor.deltatocumulative.default.input]
+%{ if otel_logs_enabled }
+      logs    = [otelcol.processor.batch.default.input]
+%{ endif }
+    }
+  }
+
+  otelcol.processor.deltatocumulative "default" {
+    output {
+      metrics = [otelcol.processor.batch.default.input]
+    }
+  }
+
+  otelcol.connector.servicegraph "default" {
+    dimensions = [
+    %{ for dim in otel_service_graphs_dimensions ~}
+    "${dim}",
+    %{ endfor ~}
+  ]
+
+    output {
+      metrics = [otelcol.processor.batch.default.input]
+    }
+  }
+
+  otelcol.connector.spanmetrics "default" {
+%{ for dim in otel_span_metrics_dimensions ~}
+    dimension {
+      name = "${dim}"
+    }
+%{ endfor ~}
+
+    histogram {
+      exponential {}
+    }
+
+    output {
+      metrics = [otelcol.processor.batch.default.input]
+    }
+  }
+
+  // Batch processor
+
+  otelcol.processor.batch "default" {
+    output {
+      traces  = [otelcol.exporter.otlphttp.tempo.input]
+      metrics = [otelcol.exporter.prometheus.mimir.input]
+%{ if otel_logs_enabled }
+      logs    = [otelcol.exporter.loki.default.input]
+%{ endif }
+    }
+  }
+
+  // Tempo exporter
+
+  otelcol.exporter.otlphttp "tempo" {
+    client {
+      endpoint = argument.traces_output.value
+      %{ if try(otel_tenant_id, null) != null }
+      headers = {
+        "X-Scope-OrgID" = sys.env("GRAFANA_ALLOY_OTEL_TENANT"),
+      }
+      %{ endif }
+    }
+  }
+
+  // Mimir exporter
+
+  otelcol.exporter.prometheus "mimir" {
+    forward_to = [argument.metrics_output.value]
+  }
+
+%{ if otel_logs_enabled }
+  // Loki exporter — converts OTel log format and forwards to Loki
+
+  otelcol.exporter.loki "default" {
+    forward_to = [loki.write.otel_logs.receiver]
+  }
+
+  loki.write "otel_logs" {
+    endpoint {
+      url       = sys.env("LOKI_URL")
+      tenant_id = sys.env("LOKI_TENANT_ID")
+      remote_timeout = "${loki_remote_timeout}"
+%{ if loki_auth_enabled }
+      basic_auth {
+        username = sys.env("LOKI_USERNAME")
+        password = sys.env("LOKI_PASSWORD")
+      }
+%{ endif }
+    }
+    external_labels = {
+      k8s_cluster_name = sys.env("GRAFANA_ALLOY_K8S_CLUSTER"),
+    }
+  }
+%{ endif }
+}
