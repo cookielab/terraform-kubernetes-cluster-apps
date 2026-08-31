@@ -1,0 +1,106 @@
+declare "k8s_kubelet" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  discovery.kubernetes "kubelet" {
+    role = "node"
+  }
+
+  discovery.relabel "kubelet" {
+    targets = discovery.kubernetes.kubelet.targets
+
+    // replace _metrics_path_ to scrape kubelet from k8s API
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "/api/v1/nodes/$1/proxy/metrics"
+      source_labels = ["__meta_kubernetes_node_name"]
+      target_label  = "__metrics_path__"
+    }
+
+    // target http scheme
+    rule {
+      action        = "replace"
+      replacement   = "https"
+      target_label  = "__scheme__"
+    }
+
+    // replace address with kubernetes API endpoint
+    rule {
+      action        = "replace"
+      replacement   = "kubernetes.default.svc:443"
+      target_label  = "__address__"
+    }
+
+    // align labels with our common metadata...
+
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_namespace"]
+      target_label  = "k8s_namespace_name"
+    }
+
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_node_name"]
+      target_label  = "k8s_node_name"
+    }
+    
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_node_provider_id"]
+      target_label  = "k8s_node_provider_id"
+    }
+
+    // transfer interesting k8s labels
+
+    rule {
+      action        = "labelmap"
+      regex         = "__meta_kubernetes_node_label_app_kubernetes_io_(.+)"
+      replacement   = "k8s_app_$1"
+    }
+
+    rule {
+      action        = "labelmap"
+      regex         = "__meta_kubernetes_node_label_app_gitlab_com_(.+)"
+      replacement   = "k8s_gl_$1"
+    }
+  }
+
+  prometheus.scrape "kubelet" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+    honor_labels    = true
+
+    tls_config {
+      ca_file     = "/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+      server_name = "kubernetes"
+    }
+
+    bearer_token_file = "/run/secrets/kubernetes.io/serviceaccount/token"
+
+    targets    = discovery.relabel.kubelet.output
+    forward_to = [argument.metrics_output.value]
+  }
+
+}

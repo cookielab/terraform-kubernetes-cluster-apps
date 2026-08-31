@@ -1,0 +1,193 @@
+declare "k8s_pods" {
+  argument "metrics_output" {
+    optional = false
+    comment  = "Where to send Prometheus metrics"
+  }
+
+  argument "scrape_interval" {
+    optional = true
+    default  = "1m"
+    comment  = "How often to scrape"
+  }
+
+  argument "scrape_timeout" {
+    optional = true
+    default  = "30s"
+    comment  = "How long to wait before timing out"
+  }
+
+  discovery.kubernetes "pods" {
+    role = "pod"
+  }
+
+  discovery.relabel "pods" {
+    targets = discovery.kubernetes.pods.targets
+    %{ if scrape_pods_global  == false}
+    // Keep only annotated pods
+    rule {
+      action        = "keep"
+      source_labels = ["__meta_kubernetes_pod_annotation_${scrape_pods_annotation}"]
+      regex         = "true"
+    }
+    %{ endif }
+
+    // replace _metrics_path_ from annotation
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_path"]
+      target_label  = "__metrics_path__"
+    }
+
+    // ... or fall back to common default
+    rule {
+      action        = "replace"
+      regex         = "^$"
+      replacement   = "/metrics"
+      source_labels = ["__metrics_path__"]
+      target_label  = "__metrics_path__"
+    }
+
+    // target http scheme
+    rule {
+      action        = "replace"
+      regex         = "(https?)"
+      source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_scheme"]
+      target_label  = "__scheme__"
+    }
+
+    rule {
+      action        = "replace"
+      regex         = "^$"
+      replacement   = "http"
+      source_labels = ["__scheme__"]
+      target_label  = "__scheme__"
+    }
+
+    // decode IPv6 target
+    rule {
+      action        = "replace"
+      regex         = "([0-9]+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})"
+      replacement   = "[$2]:$1"
+      source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+      target_label  = "__address__"
+    }
+
+    // decode IPv4 target
+    rule {
+      action        = "replace"
+      regex         = "([0-9]+);([0-9]+.[0-9]+.[0-9]+.[0-9]+)"
+      replacement   = "$2:$1"
+      source_labels = ["__meta_kubernetes_pod_annotation_prometheus_io_port", "__meta_kubernetes_pod_ip"]
+      target_label  = "__address__"
+    }
+
+    // align labels with our metadata...
+
+    // k8s namespace
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_namespace"]
+      target_label  = "k8s_namespace_name"
+    }
+
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_namespace"]
+      target_label  = "kubernetes_namespace"
+    }
+
+    // k8s pod name
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_name"]
+      target_label  = "k8s_pod_name"
+    }
+    
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_name"]
+      target_label  = "kubernetes_pod"
+    }
+    
+    // k8s pod ip
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_ip"]
+      target_label  = "k8s_pod_ip"
+    }
+
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_ip"]
+      target_label  = "kubernetes_pod_ip"
+    }
+
+    // k8s pod uid
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_uid"]
+      target_label  = "k8s_pod_uid"
+    }
+
+    // k8s node name
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_node_name"]
+      target_label  = "k8s_node_name"
+    }
+
+    rule {
+      action        = "replace"
+      regex         = "(.+)"
+      replacement   = "$1"
+      source_labels = ["__meta_kubernetes_pod_node_name"]
+      target_label  = "kubernetes_node"
+    }
+
+    // transfer interesting k8s labels
+
+    rule {
+      action        = "labelmap"
+      regex         = "__meta_kubernetes_pod_label_(.+)"
+      replacement   = "$1"
+    }
+
+    rule {
+      action        = "labelmap"
+      regex         = "__meta_kubernetes_pod_label_app_kubernetes_io_(.+)"
+      replacement   = "k8s_app_$1"
+    }
+
+    rule {
+      action        = "labelmap"
+      regex         = "__meta_kubernetes_pod_label_app_gitlab_com_(.+)"
+      replacement   = "k8s_gl_$1"
+    }
+  }
+
+  prometheus.scrape "pods" {
+    scrape_interval = argument.scrape_interval.value
+    scrape_timeout  = argument.scrape_timeout.value
+    honor_labels    = true
+
+    targets    = discovery.relabel.pods.output
+    forward_to = [argument.metrics_output.value]
+  }
+}
