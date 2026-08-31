@@ -6,10 +6,6 @@ terraform {
       source  = "hashicorp/http"
       version = "~> 3.4"
     }
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 5.27"
-    }
     helm = {
       source  = "hashicorp/helm"
       version = "~> 3.0"
