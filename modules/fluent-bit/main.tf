@@ -2,7 +2,7 @@ resource "helm_release" "fluentbit" {
   name       = "fluentbit"
   repository = "https://fluent.github.io/helm-charts"
   chart      = "fluent-bit"
-  version    = "0.58.1"
+  version    = "0.58.2"
   namespace  = var.namespace
 
   values = [yamlencode(merge({
