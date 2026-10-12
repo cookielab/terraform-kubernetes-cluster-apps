@@ -1,0 +1,36 @@
+declare "k8s_mimir_rules" {
+  argument "tenant" {
+    optional = true
+    default  = sys.env("GRAFANA_ALLOY_METRICS_TENANT")
+  }
+
+  argument "address" {
+    optional = true
+    default  = sys.env("GRAFANA_ALLOY_MIMIR_RULES_ENDPOINT")
+  }
+
+  argument "namespace_prefix" {
+    optional = true
+    default  = "alloy"
+  }
+
+  argument "sync_interval" {
+    optional = true
+    default  = "5m"
+  }
+
+  argument "rule_match_labels" {
+    optional = true
+    default = {}
+  }
+
+  mimir.rules.kubernetes "mimir_rules" {
+    address                = argument.address.value
+    tenant_id              = argument.tenant.value
+    mimir_namespace_prefix = argument.namespace_prefix.value
+    sync_interval          = argument.sync_interval.value
+    rule_selector {
+      match_labels = argument.rule_match_labels.value
+    }
+  }
+}
