@@ -397,6 +397,7 @@ variable "cert_manager" {
   description = "cert manager configuration"
   type = object({
     enabled       = optional(bool, false)
+    version       = optional(string, null)
     node_selector = optional(map(string), null)
     tolerations = optional(list(object({
       key      = string

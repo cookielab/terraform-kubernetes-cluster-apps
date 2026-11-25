@@ -4,6 +4,17 @@ variable "namespace" {
   default     = "cluster-apps"
 }
 
+variable "cert_manager_version" {
+  description = "cert-manager version (chart and CRDs) overriding the module default, to upgrade one minor version at a time - cert-manager does not support skipping minor versions"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.cert_manager_version == null || can(regex("^v[0-9]+\\.[0-9]+\\.[0-9]+$", var.cert_manager_version))
+    error_message = "cert_manager.version must be a release tag including the \"v\" prefix, e.g. \"v1.21.3\"."
+  }
+}
+
 variable "node_selector" {
   description = "node selector to deploy the cert manager"
   type        = map(string)
