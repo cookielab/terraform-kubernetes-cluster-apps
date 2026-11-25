@@ -66,6 +66,35 @@ module "cluster_apps" {
   }
 }
 ```
+
+## Upgrading cert-manager
+
+cert-manager supports upgrading only [one minor version at a time](https://cert-manager.io/docs/installation/upgrade/),
+always to the latest patch release of that minor, and does not support downgrades. When a module upgrade raises
+the default cert-manager version by more than one minor, step through the minors with `cert_manager.version` first:
+
+```hcl
+  cert_manager = {
+    enabled = true
+    version = "v1.15.5" # then v1.16.5, v1.17.4, v1.18.6, v1.19.6, v1.20.5
+  }
+```
+
+Apply each step and check that the cert-manager pods and Certificates are healthy before the next one, then remove
+`version` to use the module default. Review the [upgrade notes](https://cert-manager.io/docs/releases/) of every
+minor version you go through. Notable behavior changes since v1.14:
+
+- v1.16: Helm values are validated against a JSON schema; the Route53 DNS-01 solver uses regional STS endpoints.
+- v1.18: `privateKey.rotationPolicy` defaults to `Always` (set `Never` on a Certificate to keep its key);
+  `revisionHistoryLimit` defaults to `1`, so older CertificateRequests are deleted; ACME HTTP-01 solver Ingresses
+  use `pathType: Exact` (ingress-nginx needs to be >= 1.12.6 / 1.13.2).
+- v1.19: the `path` label was removed from the ACME client metrics; the `cert-manager-edit` ClusterRole can no
+  longer create Challenges and Orders (since v1.19.6 / v1.20.3).
+- v1.20: containers run as UID/GID 65532 instead of 1000/0.
+- v1.21: the controller metrics Service port was renamed to `http-metrics`; the default `serviceaccounts/token`
+  RBAC for the controller was removed (matters only with `serviceAccountRef` pointing at the controller
+  ServiceAccount).
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -89,9 +118,9 @@ module "cluster_apps" {
 | <a name="module_cert_manager"></a> [cert\_manager](#module\_cert\_manager) | ./modules/cert-manager | n/a |
 | <a name="module_external_secrets"></a> [external\_secrets](#module\_external\_secrets) | ./modules/external-secrets | n/a |
 | <a name="module_fluent-bit"></a> [fluent-bit](#module\_fluent-bit) | ./modules/fluent-bit | n/a |
-| <a name="module_grafana_alloy_cluster"></a> [grafana\_alloy\_cluster](#module\_grafana\_alloy\_cluster) | cookielab/grafana-alloy/kubernetes//modules/cluster | v1.0.6 |
-| <a name="module_grafana_alloy_loki"></a> [grafana\_alloy\_loki](#module\_grafana\_alloy\_loki) | cookielab/grafana-alloy/kubernetes//modules/loki-logs | v1.0.6 |
-| <a name="module_grafana_alloy_node"></a> [grafana\_alloy\_node](#module\_grafana\_alloy\_node) | cookielab/grafana-alloy/kubernetes//modules/node | v1.0.6 |
+| <a name="module_grafana_alloy_cluster"></a> [grafana\_alloy\_cluster](#module\_grafana\_alloy\_cluster) | cookielab/grafana-alloy/kubernetes//modules/cluster | v1.0.7 |
+| <a name="module_grafana_alloy_loki"></a> [grafana\_alloy\_loki](#module\_grafana\_alloy\_loki) | cookielab/grafana-alloy/kubernetes//modules/loki-logs | v1.0.7 |
+| <a name="module_grafana_alloy_node"></a> [grafana\_alloy\_node](#module\_grafana\_alloy\_node) | cookielab/grafana-alloy/kubernetes//modules/node | v1.0.7 |
 | <a name="module_karpenter"></a> [karpenter](#module\_karpenter) | ./modules/karpenter | n/a |
 | <a name="module_keda"></a> [keda](#module\_keda) | ./modules/keda | n/a |
 | <a name="module_kyverno"></a> [kyverno](#module\_kyverno) | ./modules/kyverno | n/a |
@@ -108,7 +137,7 @@ module "cluster_apps" {
 
 | Name | Description | Type | Default | Required |
 | ---- | ----------- | ---- | ------- | :------: |
-| <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | cert manager configuration | <pre>object({<br/>    enabled       = optional(bool, false)<br/>    node_selector = optional(map(string), null)<br/>    tolerations = optional(list(object({<br/>      key      = string<br/>      operator = string<br/>      value    = optional(string, null)<br/>      effect   = optional(string, null)<br/>    })), null)<br/>    resources = optional(object({<br/>      cert_manager = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>      cainjector = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>      webhook = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>  })</pre> | `{}` | no |
+| <a name="input_cert_manager"></a> [cert\_manager](#input\_cert\_manager) | cert manager configuration | <pre>object({<br/>    enabled       = optional(bool, false)<br/>    version       = optional(string, null)<br/>    node_selector = optional(map(string), null)<br/>    tolerations = optional(list(object({<br/>      key      = string<br/>      operator = string<br/>      value    = optional(string, null)<br/>      effect   = optional(string, null)<br/>    })), null)<br/>    resources = optional(object({<br/>      cert_manager = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>      cainjector = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>      webhook = optional(object({<br/>        replicas = optional(number, 1)<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | name of the EKS cluster | `string` | n/a | yes |
 | <a name="input_external_secrets"></a> [external\_secrets](#input\_external\_secrets) | external secrets configuration | <pre>object({<br/>    enabled       = optional(bool, true)<br/>    repository    = optional(string, "oci.external-secrets.io/external-secrets/external-secrets")<br/>    node_selector = optional(map(string), null)<br/>    tolerations = optional(list(object({<br/>      key      = string<br/>      operator = string<br/>      value    = optional(string, null)<br/>      effect   = optional(string, null)<br/>    })), null)<br/>    resources = optional(object({<br/>      replicas = optional(number, 1)<br/>      limits = optional(object({<br/>        cpu    = optional(string)<br/>        memory = optional(string)<br/>      }), {})<br/>      requests = optional(object({<br/>        cpu    = optional(string)<br/>        memory = optional(string)<br/>      }), {})<br/>    }), {})<br/>    webhook = optional(object({<br/>      replicas = optional(number, 1)<br/>      resources = optional(object({<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>    certController = optional(object({<br/>      replicas = optional(number, 1)<br/>      resources = optional(object({<br/>        limits = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>        requests = optional(object({<br/>          cpu    = optional(string)<br/>          memory = optional(string)<br/>        }), {})<br/>      }), {})<br/>    }), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_fluent_bit"></a> [fluent\_bit](#input\_fluent\_bit) | fluent bit configuration | <pre>object({<br/>    enabled      = optional(bool, false)<br/>    logs_storage = optional(string, "loki")<br/>    loki = optional(object({<br/>      tenant_id         = optional(string, null)<br/>      logs_endpoint_url = optional(string, null)<br/>      basic_auth = optional(object({<br/>        enabled  = optional(bool, false)<br/>        username = optional(string, null)<br/>        password = optional(string, null)<br/>      }), {})<br/>      bearer_token = optional(object({<br/>        enabled = optional(bool, false)<br/>        token   = optional(string, null)<br/>      }), {})<br/>    }), {})<br/>    elasticsearch = optional(object({<br/>      auth = optional(object({<br/>        enabled  = optional(bool, false)<br/>        username = optional(string, null)<br/>        password = optional(string, null)<br/>      }), {})<br/>    }), {})<br/>    use_defaults = optional(object({<br/>      outputs = optional(bool, true)<br/>      filters = optional(bool, true)<br/>      inputs  = optional(bool, true)<br/>    }), {})<br/>    logs_custom = optional(object({<br/>      outputs = optional(map(string), {})<br/>      filters = optional(map(string), {})<br/>      inputs  = optional(map(string), {})<br/>    }), {})<br/>    logs_endpoint_url = optional(string, null)<br/>    tolerations = optional(list(object({<br/>      key      = string<br/>      operator = string<br/>      value    = string<br/>      effect   = string<br/>    })), [])<br/>    node_selector   = optional(map(string), {})<br/>    labels          = optional(map(string), {})<br/>    pod_annotations = optional(map(string), {})<br/>    resources = optional(object({<br/>      limits = optional(object({<br/>        cpu    = optional(string)<br/>        memory = optional(string)<br/>      }), {})<br/>      requests = optional(object({<br/>        cpu    = optional(string)<br/>        memory = optional(string)<br/>      }), {})<br/>    }), {})<br/>    extra_values = optional(any, {})<br/>  })</pre> | `{}` | no |

@@ -263,6 +263,7 @@ module "cert_manager" {
   source = "./modules/cert-manager"
 
   namespace              = local.namespace
+  cert_manager_version   = var.cert_manager.version
   node_selector          = var.cert_manager.node_selector != null ? var.cert_manager.node_selector : var.node_selector
   tolerations            = var.cert_manager.tolerations != null ? var.cert_manager.tolerations : var.tolerations
   cert_manager_resources = var.cert_manager.resources.cert_manager
